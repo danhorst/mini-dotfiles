@@ -49,6 +49,7 @@ brew "wget"
 brew "xwmx/taps/pb"
 
 cask "appcleaner"
+cask "beeper"
 cask "imageoptim"
 cask "inkscape"
 cask "monitorcontrol"
