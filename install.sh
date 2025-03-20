@@ -21,11 +21,10 @@ echo "# Rust & Crates"
 echo "###############################################################################"
 
 rustup default stable
+rustup update
 
 cargo install bat
 cargo install fd-find
 cargo install git-delta
-#cargo install jwt-ui # Use homebrew instead
 cargo install monolith
 cargo install ripgrep
-#cargo install tidy-viewer # Use homebrew instead
