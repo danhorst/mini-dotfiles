@@ -48,6 +48,7 @@ brew "uv"
 brew "vim"
 brew "wget"
 brew "xwmx/taps/pb"
+brew "yt-dlp"
 brew "zsh-completions"
 
 cask "appcleaner"
