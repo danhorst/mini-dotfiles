@@ -63,6 +63,7 @@ cask "monitorcontrol"
 cask "rar"
 cask "signal"
 cask "visual-studio-code"
+cask "vlc"
 cask "warp"
 
 brew "mas"
