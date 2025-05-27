@@ -1,0 +1,126 @@
+###############################################################################
+# SSH agent config
+###############################################################################
+
+export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+
+########################################################################
+# Homebrew setup
+########################################################################
+
+if type brew &>/dev/null
+then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+
+  autoload -Uz compinit
+  compinit
+fi
+
+PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+
+########################################################################
+# Editor setup
+########################################################################
+if [ -f "$(brew --prefix)/bin/vim" ]; then
+ # echo "vim already installed via Homebrew"
+else
+  brew install vim
+fi
+
+export EDITOR="$(brew --prefix)/bin/vim"
+export VISUAL="$(brew --prefix)/bin/vim"
+
+########################################################################
+# Git setup
+########################################################################
+
+zstyle ':completion:*:*:git:*' script ~/.zsh/completion/git-completion.bash
+
+# `nb` completion is set up here too
+fpath=(~/.zsh/completion $fpath)
+autoload -Uz compinit && compinit
+
+# Commit signing
+export GPG_TTY=$TTY
+
+########################################################################
+# Load aliases
+########################################################################
+
+source "$HOME/.zsh_aliases"
+
+########################################################################
+# Load scripts
+########################################################################
+
+[ -d "$HOME/.bin" ] && PATH="$PATH:$HOME/.bin"
+
+########################################################################
+# Cargo
+########################################################################
+
+[ -d "$HOME/.cargo/bin" ] && PATH="$PATH:$HOME/.cargo/bin"
+[ -d "/opt/homebrew/opt/rustup/bin" ] && PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+
+########################################################################
+# fzf
+########################################################################
+
+# https://github.com/junegunn/fzf#using-homebrew
+# Includes optional keybindings
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
+
+export FZF_COMPLETION_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+export FZF_CTRL_R_OPTS="--ansi"
+export FZF_CTRL_T_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+
+# Allows invoking Alt-c on a Mac keyboard without other modifications
+bindkey "ç" fzf-cd-widget
+
+export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git --exclude Library --exclude .asdf --exclude .go"
+export FZF_ALT_C_OPTS="--ansi"
+
+# Customize completion functions
+# source: https://thevaluable.dev/fzf-shell-integration/
+_fzf_compgen_path() {
+    rg --files --glob "!.git" . "$1"
+}
+
+_fzf_compgen_dir() {
+   fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
+
+########################################################################
+# PKM
+########################################################################
+
+export OBSIDIAN_VAULT_PATH="$HOME/Documents/Obsidian/Memex"
+export CORPUS_PUBLISH_PATH="$HOME/git/danhorst.com"
+
+########################################################################
+# direnv
+########################################################################
+
+export XDG_CONFIG_HOME="$HOME/.config"
+eval "$(direnv hook zsh)"
+
+########################################################################
+# rbenv
+########################################################################
+
+eval "$(rbenv init - --no-rehash zsh)"
+
+########################################################################
+# LM Studio
+########################################################################
+
+[ -d "$HOME/.lmstudio/bin" ] && PATH="$PATH:$HOME/.lmstudio/bin"
+
+########################################################################
+# Ensure PATH is set properly
+########################################################################
+
+export PATH
