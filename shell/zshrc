@@ -34,12 +34,6 @@ export VISUAL="$(brew --prefix)/bin/vim"
 # Git setup
 ########################################################################
 
-zstyle ':completion:*:*:git:*' script ~/.zsh/completion/git-completion.bash
-
-# `nb` completion is set up here too
-fpath=(~/.zsh/completion $fpath)
-autoload -Uz compinit && compinit
-
 # Commit signing
 export GPG_TTY=$TTY
 
