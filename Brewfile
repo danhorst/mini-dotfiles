@@ -51,6 +51,7 @@ brew "xwmx/taps/pb"
 brew "yt-dlp"
 brew "zsh-completions"
 
+cask "alacritty"
 cask "appcleaner"
 cask "beeper"
 cask "handbrake"
