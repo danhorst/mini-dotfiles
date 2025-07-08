@@ -29,6 +29,17 @@ cargo install git-delta
 cargo install monolith
 cargo install ripgrep
 
+echo ""
+echo "###############################################################################"
+echo "# Lima"
+echo "###############################################################################"
+if [ -d "~/.lima/default" ]; then
+  ln -nsf "$HOME/git/dotfiles/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"
+else
+  echo "Lima default VM is not set up"
+fi
+
+echo ""
 echo "*******************************************************************************"
 echo "Done!"
 echo "*******************************************************************************"
