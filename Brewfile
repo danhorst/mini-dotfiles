@@ -1,6 +1,7 @@
 tap "homebrew/bundle"
 tap "homebrew/services"
 
+brew "colima"
 brew "deno"
 brew "dict"
 brew "direnv"
