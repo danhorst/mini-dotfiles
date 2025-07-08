@@ -40,7 +40,15 @@ echo ""
 echo "###############################################################################"
 echo "# Lima"
 echo "###############################################################################"
-if [ -d "~/.lima/default" ]; then
+
+if [ -d "/Users/lima" ]; then
+  echo "Lima shared directory is set up"
+else
+  mkdir /Users/lima
+fi
+
+if [ -d "$HOME/.lima/default" ]; then
+  echo "Ensure Lima default VM config is tracked"
   ln -nsf "$HOME/git/dotfiles/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"
 else
   echo "Lima default VM is not set up"

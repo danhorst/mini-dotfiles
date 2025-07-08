@@ -86,6 +86,10 @@ mounts:
 - location: "{{.GlobalTempDir}}/lima"
   mountPoint: /tmp/lima
   writable: true
+
+- location: "/Users/lima"
+  mountPoint: /home/dbh.linux/git
+  writable: true
 #- location: "~"
 #  # Configure the mountPoint inside the guest.
 #  # 🟢 Builtin default: value of location
