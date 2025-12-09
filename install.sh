@@ -33,7 +33,6 @@ rustup update
 cargo install bat
 cargo install fd-find
 cargo install git-delta
-cargo install monolith
 cargo install ripgrep
 
 echo ""
