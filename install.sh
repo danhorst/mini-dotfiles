@@ -11,8 +11,27 @@ echo ""
 echo "###############################################################################"
 echo "# Dotfiles"
 echo "###############################################################################"
-ln -nfs "$HOME/git/dotfiles/shell/gitconfig" "$HOME/.gitconfig"
-ln -nfs "$HOME/git/dotfiles/shell/zshrc" "$HOME/.zshrc"
+echo ""
+
+echo "WARN: Run install script from the root of the dotfiles repo"
+dotfiles_directory="$(pwd)"
+dotfiles="$dotfiles_directory/shell"
+
+echo "Symlinking dotfiles into $HOME"
+ls -1 "$dotfiles" | xargs -I D ln -nsf "$dotfiles/D" "$HOME/.D"
+
+echo ""
+echo "###############################################################################"
+echo "# Utilities"
+echo "###############################################################################"
+echo ""
+
+if [ -L "$HOME/.bin" ]; then
+  echo "Personal scripts are already linked"
+else
+  echo "Setting up personal scripts"
+  ln -nsf "$dotfiles_directory/bin" "$HOME/.bin"
+fi
 
 echo ""
 echo "###############################################################################"
