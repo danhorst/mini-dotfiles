@@ -1,0 +1,124 @@
+alias ll='ls -l'
+alias la='ls -la'
+alias l1='ls -1'
+
+alias bx='bundle exec'
+alias g='bx guard'
+alias r='bx rake'
+alias rake='noglob rake'
+alias v='vim'
+alias bspec="bx rspec"
+alias bcop="bx rubocop"
+
+alias webs="ruby -rwebrick -e 'WEBrick::HTTPServer.new(Port: 2999, DocumentRoot: Dir.pwd).start'"
+
+alias ga='git add . && gst'
+alias gamd='git commit -a --amend --no-edit'
+alias gb='git branch -vv'
+alias gba='git branch -avv'
+alias gbl='git branch -lvv'
+alias gca='git commit -v -a'
+alias gcb='git co -b'
+alias gcv='git commit -v'
+alias gdh='git diff HEAD'
+alias gdhh='git diff HEAD^'
+alias gl='git lg'
+alias glp='gl -p'
+alias gmt='git mergetool'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gpr='gh pr view --web'
+alias grm='git ls-files -d | xargs git rm; gst'
+alias gsh='git show'
+alias gst='git status --ignore-submodules=dirty'
+
+###############################################################################
+# Utility Functions
+###############################################################################
+
+function csv {
+  column -t -s, "$@" | less -F -S -X -K
+}
+
+function ds {
+  dig "$@" +short
+}
+
+function gdm {
+  local default_branch_whitelist="(main|master)"
+  local skip_branches="${1:-"${default_branch_whitelist}"}"
+  local dry_run="${2}"
+
+  # We only have a single --dry-run flag set so use the default branch list
+  # and make sure dry_run is set.
+  if [ "${skip_branches}" = "--dry-run" ]; then
+    skip_branches="${default_branch_whitelist}"
+    dry_run="--dry-run"
+  fi
+
+  git branch | grep -wEv "${skip_branches}" \
+    | grep -wv "$(git branch --show-current)" \
+    | { if [ -n "${dry_run}" ]; then cat -; else xargs git branch -D; fi; }
+}
+
+function vf {
+  vim $(FZF_DEFAULT_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'" fzf)
+}
+
+function vst {
+  "$EDITOR" $(git status --porcelain | awk 'match($1, "A|M"){ print $2 }' | xargs echo -n)
+}
+
+function vspecf {
+  "$EDITOR" $(grep "failed" "$PWD/tmp/rspec_status" | cut -d "[" -f 1 | xargs echo -n)
+}
+
+extract_mp3() {
+  for input in "$@"; do
+    if [[ ! -f "$input" ]]; then
+      echo "Skipping: $input (not a file)"
+      continue
+    fi
+
+    local output="${input%.*}.mp3"
+
+    ffmpeg -i "$input" \
+      -vn \
+      -acodec libmp3lame \
+      -ab 320k \
+      -map_metadata 0 \
+      "$output"
+  done
+}
+
+###############################################################################
+# Tmux aliases - add these to your ~/.bashrc or ~/.zshrc
+###############################################################################
+
+alias tn='tmux new -s'                      # Start new session
+alias tl='tmux ls'                          # List sessions
+alias ta='tmux attach -t'                   # Attach to session
+alias tk='tmux kill-session -t'             # Kill session
+alias tt='tmux attach || tmux new -s main'  # Quick attach to last session
+
+# Detach from session (from inside tmux, but here for reference)
+# Just press Ctrl+a then d
+
+# Common tmux commands cheat sheet function
+tmux-help() {
+    echo "Tmux Quick Reference:"
+    echo "  tn <name>    - Create new session"
+    echo "  ta <name>    - Attach to session"
+    echo "  tl           - List sessions"
+    echo "  tk <name>    - Kill session"
+    echo "  tt           - Quick attach"
+    echo ""
+    echo "Inside tmux (prefix = Ctrl+a):"
+    echo "  Ctrl+a |     - Split vertical"
+    echo "  Ctrl+a -     - Split horizontal"
+    echo "  Ctrl+a d     - Detach"
+    echo "  Ctrl+a c     - New window"
+    echo "  Ctrl+a n/p   - Next/previous window"
+    echo "  Ctrl+a 0-9   - Switch to window number"
+    echo "  Alt+arrows   - Navigate panes"
+}
