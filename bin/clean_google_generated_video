@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <input_video>"
+  exit 1
+fi
+
+INPUT="$1"
+BASENAME="${INPUT%.*}"
+OUTPUT="${BASENAME}_clean.mp4"
+
+echo "Processing: $INPUT"
+
+ffmpeg -i "$INPUT" \
+  -vf "delogo=x=619:y=1205:w=100:h=74" \
+  -c:v libx264 \
+  -c:a aac \
+  -movflags +faststart \
+  "$OUTPUT"
+
+echo "Done: $OUTPUT"

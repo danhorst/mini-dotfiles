@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# compress_pdf.sh — Compress a PDF using Ghostscript
+# Usage: ./compress_pdf.sh input.pdf [output.pdf] [quality]
+# Quality presets: screen (72dpi), ebook (150dpi), printer (300dpi)
+# Default quality: ebook
+
+set -euo pipefail
+
+INPUT="${1:-}"
+OUTPUT="${2:-}"
+QUALITY="${3:-ebook}"
+
+if [[ -z "$INPUT" ]]; then
+  echo "Usage: $0 input.pdf [output.pdf] [screen|ebook|printer]"
+  exit 1
+fi
+
+if [[ ! -f "$INPUT" ]]; then
+  echo "Error: File not found: $INPUT"
+  exit 1
+fi
+
+if [[ -z "$OUTPUT" ]]; then
+  BASENAME="${INPUT%.pdf}"
+  OUTPUT="${BASENAME}_compressed.pdf"
+fi
+
+echo "Compressing: $INPUT"
+echo "Output:      $OUTPUT"
+echo "Quality:     $QUALITY"
+
+gs \
+  -sDEVICE=pdfwrite \
+  -dCompatibilityLevel=1.4 \
+  -dPDFSETTINGS=/"$QUALITY" \
+  -dNOPAUSE \
+  -dQUIET \
+  -dBATCH \
+  -sOutputFile="$OUTPUT" \
+  "$INPUT"
+
+BEFORE=$(du -sh "$INPUT" | cut -f1)
+AFTER=$(du -sh "$OUTPUT" | cut -f1)
+echo "Done! $BEFORE → $AFTER"
