@@ -1,8 +1,16 @@
 [tools]
 node = "24"
+python = "3"
 ruby = "4"
+uv = "latest"
+
+[env]
+UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
 
 [settings]
+
+[settings.python]
+uv_venv_auto = "source"
 
 [settings.ruby]
 compile = true
