@@ -1,2 +1,8 @@
 [tools]
 node = "24"
+ruby = "4"
+
+[settings]
+
+[settings.ruby]
+compile = true
