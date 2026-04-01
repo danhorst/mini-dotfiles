@@ -4,6 +4,7 @@
 	ci = commit -v -a
 	co = checkout
 	forget = update-index --assume-unchanged
+	dft = difftool -t difftastic
 	fza = "!git ls-files -m -o --exclude-standard | fzf -m --print0 | xargs -0 git add"
 	gone = "!f() { git fetch --all --prune; git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D; }; f"
 	lg = log --graph --pretty=format:'%C(red)%h%Creset — %C(yellow)%s%Creset %d%n          %an, %C(green)(%ar)%Creset'
@@ -60,6 +61,10 @@
 	conflictstyle = diff3
 [diff]
 	colorMoved = default
+[difftool]
+	prompt = false
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
 [user]
 	name = Dan Brubaker Horst
 	email = dan.brubaker.horst@gmail.com

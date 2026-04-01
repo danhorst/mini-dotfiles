@@ -71,8 +71,8 @@ echo "# Claude Code"
 echo "###############################################################################"
 
 mkdir -p "$HOME/.claude"
-echo "Symlinking Claude Code settings"
-ln -nsf "$dotfiles_directory/claude/settings.json" "$HOME/.claude/settings.json"
+echo "Symlinking Claude Code config into $HOME/.claude"
+find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0 | xargs -0 -I F ln -nsf "F" "$HOME/.claude/$(basename F)"
 
 echo ""
 echo "###############################################################################"
