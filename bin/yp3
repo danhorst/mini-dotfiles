@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# yp3 — Download a YouTube video as MP3
+# Usage: yp3 <url> [output_dir]
+
+set -euo pipefail
+
+URL="${1:-}"
+OUTPUT_DIR="${2:-.}"
+
+if [[ -z "$URL" ]]; then
+  echo "Usage: $0 <youtube-url> [output_dir]"
+  exit 1
+fi
+
+yt-dlp \
+  --extract-audio \
+  --audio-format mp3 \
+  --audio-quality 0 \
+  --output "${OUTPUT_DIR}/%(title)s.%(ext)s" \
+  "$URL"
