@@ -4,6 +4,13 @@
 
 set -euo pipefail
 
+for cmd in yt-dlp ffmpeg deno; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "Error: $cmd is not installed. Instll with \`brew install $cmd\`"
+    exit 1
+  fi
+done
+
 URL="${1:-}"
 OUTPUT_DIR="${2:-.}"
 
@@ -16,5 +23,7 @@ yt-dlp \
   --extract-audio \
   --audio-format mp3 \
   --audio-quality 0 \
+  --embed-thumbnail \
+  --embed-metadata \
   --output "${OUTPUT_DIR}/%(title)s.%(ext)s" \
   "$URL"
