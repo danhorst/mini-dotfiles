@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(mise trust:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(shellcheck:*)"
     ]
   }
 }

@@ -18,7 +18,7 @@ dotfiles_directory="$(pwd)"
 dotfiles="$dotfiles_directory/shell"
 
 echo "Symlinking dotfiles into $HOME"
-ls -1 "$dotfiles" | xargs -I D ln -nsf "$dotfiles/D" "$HOME/.D"
+find "$dotfiles" -maxdepth 1 -mindepth 1 -print0 | xargs -0 -I D ln -nsf "D" "$HOME/.$(basename D)"
 
 echo ""
 echo "###############################################################################"
