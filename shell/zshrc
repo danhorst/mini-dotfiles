@@ -131,7 +131,7 @@ _fzf_compgen_dir() {
 ########################################################################
 
 export OBSIDIAN_VAULT_PATH="$HOME/Documents/Obsidian/Memex"
-export CORPUS_PUBLISH_PATH="$HOME/git/danhorst.com"
+export CORPUS_PUBLISH_PATH="$HOME/git/danhorst/danhorst.com"
 
 ########################################################################
 # direnv
