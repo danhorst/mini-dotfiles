@@ -4,7 +4,7 @@ set -e
 PROJECT_ROOT="$HOME/git"
 
 PROJECTS=()
-for gitdir in "$PROJECT_ROOT"/*/.git; do
+for gitdir in "$PROJECT_ROOT"/*/*/.git; do
   [ -d "$gitdir" ] || continue
   PROJECTS+=( "$(dirname "$gitdir")" )
 done
