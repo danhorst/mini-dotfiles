@@ -65,6 +65,20 @@ else
   mkdir /Users/lima
 fi
 
+echo ""
+echo "###############################################################################"
+echo "# Claude Code"
+echo "###############################################################################"
+
+mkdir -p "$HOME/.claude"
+echo "Symlinking Claude Code settings"
+ln -nsf "$dotfiles_directory/claude/settings.json" "$HOME/.claude/settings.json"
+
+echo ""
+echo "###############################################################################"
+echo "# Lima"
+echo "###############################################################################"
+
 if [ -d "$HOME/.lima/default" ]; then
   echo "Ensure Lima default VM config is tracked"
   ln -nsf "$HOME/git/dotfiles/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(mise trust:*)",
       "Bash(chmod:*)",
-      "Bash(shellcheck:*)"
+      "Bash(shellcheck:*)",
+      "Skill(update-config)"
     ]
   }
 }
