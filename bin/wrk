@@ -13,7 +13,7 @@ done
 
 PROJECT_PATH=$(printf '%s\n' "${PROJECTS[@]}" \
   | sed "s|^$PROJECT_ROOT/||" \
-  | fzf --prompt="What do you want to work on? ")
+  | fzf --prompt="What do you want to work on? " --query "${1:-}")
 
 [ -z "$PROJECT_PATH" ] && exit 0
 
