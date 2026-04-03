@@ -1,3 +1,5 @@
+#!/bin/bash
+
 alias ll='ls -l'
 alias la='ls -la'
 alias l1='ls -1'
@@ -61,16 +63,20 @@ function gdm {
     | { if [ -n "${dry_run}" ]; then cat -; else xargs git branch -D; fi; }
 }
 
+function ia {
+  open -a "/Applications/iA\ Writer.app" "$@"
+}
+
 function vf {
-  vim $(FZF_DEFAULT_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'" fzf)
+  vim "$(FZF_DEFAULT_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'" fzf)"
 }
 
 function vst {
-  "$EDITOR" $(git status --porcelain | awk 'match($1, "A|M"){ print $2 }' | xargs echo -n)
+  "$EDITOR" "$(git status --porcelain | awk 'match($1, "A|M"){ print $2 }' | xargs echo -n)"
 }
 
 function vspecf {
-  "$EDITOR" $(grep "failed" "$PWD/tmp/rspec_status" | cut -d "[" -f 1 | xargs echo -n)
+  "$EDITOR" "$(grep "failed" "$PWD/tmp/rspec_status" | cut -d "[" -f 1 | xargs echo -n)"
 }
 
 extract_mp3() {
@@ -113,12 +119,12 @@ tmux-help() {
     echo "  tk <name>    - Kill session"
     echo "  tt           - Quick attach"
     echo ""
-    echo "Inside tmux (prefix = Ctrl+a):"
-    echo "  Ctrl+a |     - Split vertical"
-    echo "  Ctrl+a -     - Split horizontal"
-    echo "  Ctrl+a d     - Detach"
-    echo "  Ctrl+a c     - New window"
-    echo "  Ctrl+a n/p   - Next/previous window"
-    echo "  Ctrl+a 0-9   - Switch to window number"
+    echo "Inside tmux (prefix = Ctrl+b):"
+    echo "  Ctrl+b |     - Split vertical"
+    echo "  Ctrl+b -     - Split horizontal"
+    echo "  Ctrl+b d     - Detach"
+    echo "  Ctrl+b c     - New window"
+    echo "  Ctrl+b n/p   - Next/previous window"
+    echo "  Ctrl+b 0-9   - Switch to window number"
     echo "  Alt+arrows   - Navigate panes"
 }
