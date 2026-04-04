@@ -18,7 +18,9 @@ dotfiles_directory="$(pwd)"
 dotfiles="$dotfiles_directory/shell"
 
 echo "Symlinking dotfiles into $HOME"
-find "$dotfiles" -maxdepth 1 -mindepth 1 -print0 | xargs -0 -I D ln -nsf "D" "$HOME/.$(basename D)"
+while IFS= read -r -d '' f; do
+  ln -nsf "$f" "$HOME/.$(basename "$f")"
+done < <(find "$dotfiles" -maxdepth 1 -mindepth 1 -print0)
 
 echo ""
 echo "###############################################################################"
@@ -72,7 +74,9 @@ echo "##########################################################################
 
 mkdir -p "$HOME/.claude"
 echo "Symlinking Claude Code config into $HOME/.claude"
-find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0 | xargs -0 -I F ln -nsf "F" "$HOME/.claude/$(basename F)"
+while IFS= read -r -d '' f; do
+  ln -nsf "$f" "$HOME/.claude/$(basename "$f")"
+done < <(find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0)
 
 echo ""
 echo "###############################################################################"

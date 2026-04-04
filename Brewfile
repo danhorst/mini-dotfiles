@@ -2,6 +2,7 @@ tap "homebrew/bundle"
 tap "homebrew/services"
 
 brew "ast-grep"
+brew "bash"
 brew "deno"
 brew "dict"
 brew "difftastic"
