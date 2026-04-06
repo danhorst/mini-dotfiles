@@ -1,11 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mise trust:*)",
       "Bash(chmod:*)",
-      "Bash(shellcheck:*)",
-      "Skill(update-config)",
+      "Bash(direnv hook:*)",
       "Bash(git:*)",
+      "Bash(ls /etc/zshrc_*)",
+      "Bash(mise activate:*)",
+      "Bash(mise trust:*)",
+      "Bash(shellcheck:*)",
+      "Bash(tmux show-options:*)",
+      "Bash(xargs ls:*)",
+      "Read(//opt/homebrew/share/zsh/**)",
+      "Skill(update-config)",
       "WebFetch(domain:github.com)"
     ]
   }
