@@ -4,6 +4,7 @@
 
 if [[ $- == *i* ]]; then
   "$HOME/.bin/machine_report"
+  stty -ixon  # prevent Ctrl-S/Ctrl-Q from triggering terminal flow control
 fi
 
 ########################################################################
@@ -48,6 +49,7 @@ fi
 
 export EDITOR="$(brew --prefix)/bin/vim"
 export VISUAL="$(brew --prefix)/bin/vim"
+bindkey -e  # use emacs key bindings (zsh defaults to vi mode when EDITOR contains 'vi')
 
 ########################################################################
 # Git setup
@@ -101,7 +103,7 @@ export GOPATH="$HOME/.go"
 
 # https://github.com/junegunn/fzf#using-homebrew
 # Includes optional keybindings
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+command -v fzf >/dev/null && source <(fzf --zsh)
 
 export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
 
