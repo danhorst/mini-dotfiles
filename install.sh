@@ -91,6 +91,32 @@ else
 fi
 
 echo ""
+echo "###############################################################################"
+echo "# Unbound (local DNS)"
+echo "###############################################################################"
+
+UNBOUND_PREFIX="$(brew --prefix)/etc/unbound"
+UNBOUND_CONF="$UNBOUND_PREFIX/unbound.conf"
+UNBOUND_LOCAL="$UNBOUND_PREFIX/local-dev.conf"
+
+echo "Symlinking Unbound local zone config"
+ln -nsf "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
+
+if ! grep -q "local-dev.conf" "$UNBOUND_CONF"; then
+  echo "Adding include directive to unbound.conf"
+  echo "include: \"$UNBOUND_LOCAL\"" >> "$UNBOUND_CONF"
+fi
+
+if [ ! -f "/etc/resolver/test" ]; then
+  echo "Creating /etc/resolver/test"
+  sudo mkdir -p /etc/resolver
+  sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/test'
+fi
+
+echo "Restarting Unbound"
+sudo brew services restart unbound
+
+echo ""
 echo "*******************************************************************************"
 echo "Done!"
 echo "*******************************************************************************"
