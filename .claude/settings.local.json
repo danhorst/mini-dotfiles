@@ -1,12 +1,18 @@
 {
   "permissions": {
     "allow": [
+      "Bash(brew audit:*)",
+      "Bash(brew formula:*)",
+      "Bash(brew info:*)",
+      "Bash(brew test:*)",
       "Bash(chmod:*)",
       "Bash(direnv hook:*)",
+      "Bash(gh repo:*)",
       "Bash(git:*)",
       "Bash(ls /etc/zshrc_*)",
       "Bash(mise activate:*)",
       "Bash(mise trust:*)",
+      "Bash(shasum:*)",
       "Bash(shellcheck:*)",
       "Bash(tmux show-options:*)",
       "Bash(xargs ls:*)",
