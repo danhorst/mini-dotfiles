@@ -99,22 +99,35 @@ UNBOUND_PREFIX="$(brew --prefix)/etc/unbound"
 UNBOUND_CONF="$UNBOUND_PREFIX/unbound.conf"
 UNBOUND_LOCAL="$UNBOUND_PREFIX/local-dev.conf"
 
-echo "Symlinking Unbound local zone config"
-ln -nsf "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
+unbound_changed=false
+
+if [ "$(readlink "$UNBOUND_LOCAL")" != "$dotfiles_directory/unbound/local-dev.conf" ]; then
+  echo "Symlinking Unbound local zone config"
+  ln -nsf "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
+  unbound_changed=true
+else
+  echo "Unbound local zone config symlink already up to date"
+fi
 
 if ! grep -q "local-dev.conf" "$UNBOUND_CONF"; then
   echo "Adding include directive to unbound.conf"
   echo "include: \"$UNBOUND_LOCAL\"" >> "$UNBOUND_CONF"
+  unbound_changed=true
 fi
 
 if [ ! -f "/etc/resolver/test" ]; then
   echo "Creating /etc/resolver/test"
   sudo mkdir -p /etc/resolver
   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/test'
+  unbound_changed=true
 fi
 
-echo "Restarting Unbound"
-sudo brew services restart unbound
+if [ "$unbound_changed" = true ]; then
+  echo "Restarting Unbound"
+  sudo brew services restart unbound
+else
+  echo "No Unbound changes; skipping restart"
+fi
 
 echo ""
 echo "*******************************************************************************"
