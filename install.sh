@@ -130,6 +130,24 @@ else
 fi
 
 echo ""
+echo "###############################################################################"
+echo "# Caddy (port 443 privileges)"
+echo "###############################################################################"
+
+CADDY_SUDOERS_SRC="$dotfiles_directory/caddy/caddy.sudoers"
+CADDY_SUDOERS_DEST="/etc/sudoers.d/caddy"
+
+if [ -f "$CADDY_SUDOERS_DEST" ]; then
+  echo "Caddy sudoers file already installed"
+else
+  echo "Validating caddy sudoers file"
+  visudo -c -f "$CADDY_SUDOERS_SRC"
+  echo "Installing caddy sudoers file"
+  sudo install -m 0440 -o root -g wheel "$CADDY_SUDOERS_SRC" "$CADDY_SUDOERS_DEST"
+  echo "Caddy sudoers file installed"
+fi
+
+echo ""
 echo "*******************************************************************************"
 echo "Done!"
 echo "*******************************************************************************"
