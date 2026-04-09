@@ -64,7 +64,7 @@ function gdm {
 }
 
 function ia {
-  open -a "/Applications/iA\ Writer.app" "$@"
+  open -a "/Applications/iA Writer.app" "$@"
 }
 
 function vf {
