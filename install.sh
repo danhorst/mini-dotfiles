@@ -67,6 +67,13 @@ else
   mkdir /Users/lima
 fi
 
+if [ -d "$HOME/.lima/default" ]; then
+  echo "Ensure Lima default VM config is tracked"
+  ln -nsf "$HOME/git/dotfiles/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"
+else
+  echo "Lima default VM is not set up"
+fi
+
 echo ""
 echo "###############################################################################"
 echo "# Claude Code"
@@ -77,18 +84,6 @@ echo "Symlinking Claude Code config into $HOME/.claude"
 while IFS= read -r -d '' f; do
   ln -nsf "$f" "$HOME/.claude/$(basename "$f")"
 done < <(find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0)
-
-echo ""
-echo "###############################################################################"
-echo "# Lima"
-echo "###############################################################################"
-
-if [ -d "$HOME/.lima/default" ]; then
-  echo "Ensure Lima default VM config is tracked"
-  ln -nsf "$HOME/git/dotfiles/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"
-else
-  echo "Lima default VM is not set up"
-fi
 
 echo ""
 echo "###############################################################################"
