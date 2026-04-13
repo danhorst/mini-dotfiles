@@ -1,5 +1,13 @@
 #!/bin/bash
 
+force=false
+while getopts "f" opt; do
+  case $opt in
+    f) force=true ;;
+    *) echo "Usage: $0 [-f]" >&2; exit 1 ;;
+  esac
+done
+
 echo "###############################################################################"
 echo "# Xcode"
 echo "###############################################################################"
@@ -96,7 +104,7 @@ UNBOUND_LOCAL="$UNBOUND_PREFIX/local-dev.conf"
 
 unbound_changed=false
 
-if [ "$(readlink "$UNBOUND_LOCAL")" != "$dotfiles_directory/unbound/local-dev.conf" ]; then
+if [ "$force" = true ] || [ "$(readlink "$UNBOUND_LOCAL")" != "$dotfiles_directory/unbound/local-dev.conf" ]; then
   echo "Symlinking Unbound local zone config"
   ln -nsf "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
   unbound_changed=true
@@ -110,7 +118,7 @@ if ! grep -q "local-dev.conf" "$UNBOUND_CONF"; then
   unbound_changed=true
 fi
 
-if [ ! -f "/etc/resolver/test" ]; then
+if [ "$force" = true ] || [ ! -f "/etc/resolver/test" ]; then
   echo "Creating /etc/resolver/test"
   sudo mkdir -p /etc/resolver
   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/test'
@@ -132,7 +140,7 @@ echo "##########################################################################
 CADDY_SUDOERS_SRC="$dotfiles_directory/caddy/caddy.sudoers"
 CADDY_SUDOERS_DEST="/etc/sudoers.d/caddy"
 
-if [ -f "$CADDY_SUDOERS_DEST" ]; then
+if [ -f "$CADDY_SUDOERS_DEST" ] && [ "$force" = false ]; then
   echo "Caddy sudoers file already installed"
 else
   echo "Validating caddy sudoers file"

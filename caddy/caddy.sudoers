@@ -1,1 +1,1 @@
-%admin ALL=(ALL) NOPASSWD: /opt/homebrew/bin/caddy run *, /opt/homebrew/bin/caddy stop
+%admin ALL=(root) NOPASSWD: /opt/homebrew/bin/caddy run *, /opt/homebrew/bin/caddy stop
