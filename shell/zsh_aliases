@@ -97,6 +97,17 @@ extract_mp3() {
   done
 }
 
+function cc {
+  if command -v claude &>/dev/null; then
+    claude "$@"
+  elif command -v copilot &>/dev/null; then
+    copilot "$@"
+  else
+    echo "cc: neither 'claude' nor 'copilot' is installed" >&2
+    return 1
+  fi
+}
+
 ###############################################################################
 # Tmux aliases - add these to your ~/.bashrc or ~/.zshrc
 ###############################################################################
