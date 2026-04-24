@@ -12,6 +12,7 @@
 	remember = update-index --no-assume-unchanged
 	root = rev-parse --show-toplevel
 	rs = reset --hard HEAD
+	resign = "!f() { git rebase --exec 'git commit --amend --no-edit -S' ${1:-$(git merge-base HEAD origin/HEAD)}; }; f"
 	squash = "! sh -c 'git rebase --interactive HEAD~`git number-of-commits-since-master`'"
 	st = status
 	unmerged-add = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add `f`"
@@ -68,9 +69,18 @@
 [user]
 	name = Dan Brubaker Horst
 	email = dan.brubaker.horst@gmail.com
+	signingkey = /Users/dbh/.ssh/id_ed25519.pub
 [clone]
 	defaultRemoteName = origin
 [init]
 	defaultBranch = main
 [pull]
 	autoSetupRemote = true
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true
+[gpg "ssh"]
+	allowedSignersFile = /Users/dbh/.ssh/allowed_signers

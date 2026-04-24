@@ -95,6 +95,32 @@ done < <(find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0)
 
 echo ""
 echo "###############################################################################"
+echo "# SSH allowed signers"
+echo "###############################################################################"
+
+ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
+SSH_KEY="$(git config --global user.signingkey)"
+GIT_EMAIL="$(git config --global user.email)"
+
+if [ -z "$SSH_KEY" ]; then
+  echo "WARN: No signing key configured in git; skipping allowed signers setup"
+else
+  if [ ! -f "$SSH_KEY" ]; then
+    echo "Signing key $SSH_KEY not found; generating new SSH key"
+    ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "${SSH_KEY%.pub}"
+  fi
+
+  if [ -f "$ALLOWED_SIGNERS" ]; then
+    echo "SSH allowed signers file already present"
+  else
+    echo "Generating SSH allowed signers file"
+    echo "$GIT_EMAIL $(cat "$SSH_KEY")" > "$ALLOWED_SIGNERS"
+    echo "Created $ALLOWED_SIGNERS"
+  fi
+fi
+
+echo ""
+echo "###############################################################################"
 echo "# Unbound (local DNS)"
 echo "###############################################################################"
 
