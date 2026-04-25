@@ -3,8 +3,9 @@
 ########################################################################
 
 if [[ $- == *i* ]]; then
-  "$HOME/.bin/machine_report"
   stty -ixon  # prevent Ctrl-S/Ctrl-Q from triggering terminal flow control
+  # Only show the machine report outside of tmux (run `machine_report` to see it manually)
+  [[ -z "$TMUX" ]] && "$HOME/.bin/machine_report"
 fi
 
 ########################################################################
