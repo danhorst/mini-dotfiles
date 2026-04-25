@@ -53,6 +53,14 @@ brew bundle --file Brewfile -v
 
 echo ""
 echo "###############################################################################"
+echo "# mise"
+echo "###############################################################################"
+
+echo "Installing mise-managed tools"
+mise install
+
+echo ""
+echo "###############################################################################"
 echo "# Rust & Crates"
 echo "###############################################################################"
 
@@ -92,6 +100,14 @@ echo "Symlinking Claude Code config into $HOME/.claude"
 while IFS= read -r -d '' f; do
   ln -nsf "$f" "$HOME/.claude/$(basename "$f")"
 done < <(find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0)
+
+echo ""
+echo "###############################################################################"
+echo "# Playwright"
+echo "###############################################################################"
+
+echo "Installing Playwright Chromium browser"
+mise exec -- playwright install chromium
 
 echo ""
 echo "###############################################################################"
