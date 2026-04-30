@@ -146,3 +146,6 @@ tmux-help() {
     echo "  Ctrl+b 0-9   - Switch to window number"
     echo "  Alt+arrows   - Navigate panes"
 }
+
+alias caddy-status='sudo launchctl list com.danhorst.caddy'
+alias caddy-log='tail -f /var/log/caddy.log'

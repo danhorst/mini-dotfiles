@@ -176,11 +176,36 @@ fi
 
 echo ""
 echo "###############################################################################"
-echo "# Caddy (port 443 privileges)"
+echo "# Caddy"
 echo "###############################################################################"
 
+CADDY_BINARY="/usr/local/bin/caddy"
+CADDY_CONF_DIR="/etc/caddy"
+CADDY_PLIST_SRC="$dotfiles_directory/caddy/com.danhorst.caddy.plist"
+CADDY_PLIST_DEST="/Library/LaunchDaemons/com.danhorst.caddy.plist"
 CADDY_SUDOERS_SRC="$dotfiles_directory/caddy/caddy.sudoers"
 CADDY_SUDOERS_DEST="/etc/sudoers.d/caddy"
+
+if [ -f "$CADDY_BINARY" ] && [ "$force" = false ]; then
+  echo "Caddy binary already installed at $CADDY_BINARY"
+else
+  echo "Installing xcaddy"
+  go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+  echo "Building Caddy with Tailscale plugin (this takes a moment)"
+  TMP_CADDY="$(mktemp /tmp/caddy-build-XXXX)"
+  "$GOPATH/bin/xcaddy" build --with github.com/tailscale/caddy-tailscale --output "$TMP_CADDY"
+  sudo mv "$TMP_CADDY" "$CADDY_BINARY"
+  sudo chmod 755 "$CADDY_BINARY"
+  echo "Caddy installed to $CADDY_BINARY"
+fi
+
+echo "Setting up Caddy config directory"
+sudo mkdir -p "$CADDY_CONF_DIR/sites"
+sudo chown root:admin "$CADDY_CONF_DIR"
+sudo chown root:admin "$CADDY_CONF_DIR/sites"
+sudo chmod 775 "$CADDY_CONF_DIR/sites"
+sudo ln -nsf "$dotfiles_directory/caddy/Caddyfile" "$CADDY_CONF_DIR/Caddyfile"
+sudo chmod o+r "$CADDY_CONF_DIR/Caddyfile"
 
 if [ -f "$CADDY_SUDOERS_DEST" ] && [ "$force" = false ]; then
   echo "Caddy sudoers file already installed"
@@ -190,6 +215,17 @@ else
   echo "Installing caddy sudoers file"
   sudo install -m 0440 -o root -g wheel "$CADDY_SUDOERS_SRC" "$CADDY_SUDOERS_DEST"
   echo "Caddy sudoers file installed"
+fi
+
+if [ -f "$CADDY_PLIST_DEST" ] && [ "$force" = false ]; then
+  echo "Caddy LaunchDaemon already installed"
+else
+  echo "Installing Caddy LaunchDaemon"
+  sudo cp "$CADDY_PLIST_SRC" "$CADDY_PLIST_DEST"
+  sudo chown root:wheel "$CADDY_PLIST_DEST"
+  sudo chmod 644 "$CADDY_PLIST_DEST"
+  sudo launchctl load "$CADDY_PLIST_DEST"
+  echo "Caddy LaunchDaemon installed and loaded"
 fi
 
 echo ""

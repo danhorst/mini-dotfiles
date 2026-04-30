@@ -3,7 +3,6 @@ tap "homebrew/services"
 
 brew "ast-grep"
 brew "bash"
-brew "caddy"
 brew "deno"
 brew "dict"
 brew "difftastic"

@@ -1,0 +1,25 @@
+#!/bin/sh
+# Register this project's Caddy site config and deregister on exit.
+# Looks for caddy/local.caddy in the current directory.
+
+CONF_SRC="$(pwd)/caddy/local.caddy"
+SITES_DIR="/etc/caddy/sites"
+CONF_DEST="$SITES_DIR/$(basename "$(pwd)").caddy"
+CADDYFILE="/etc/caddy/Caddyfile"
+
+if [ ! -f "$CONF_SRC" ]; then
+  echo "caddy-register: no caddy/local.caddy found in $(pwd)" >&2
+  exit 1
+fi
+
+cleanup() {
+  rm -f "$CONF_DEST"
+  caddy reload --config "$CADDYFILE" 2>/dev/null || true
+}
+
+trap cleanup EXIT INT TERM
+
+ln -sf "$CONF_SRC" "$CONF_DEST"
+caddy reload --config "$CADDYFILE"
+
+while :; do sleep 3600; done
