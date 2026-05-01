@@ -1,5 +1,7 @@
 {
   admin localhost:2019
+  https_port 2443
+  storage file_system /usr/local/share/caddy
 }
 
 import /etc/caddy/sites/*.caddy

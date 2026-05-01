@@ -193,19 +193,35 @@ else
   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
   echo "Building Caddy with Tailscale plugin (this takes a moment)"
   TMP_CADDY="$(mktemp /tmp/caddy-build-XXXX)"
-  "$GOPATH/bin/xcaddy" build --with github.com/tailscale/caddy-tailscale --output "$TMP_CADDY"
+  "$(go env GOPATH)/bin/xcaddy" build --with github.com/tailscale/caddy-tailscale --output "$TMP_CADDY"
   sudo mv "$TMP_CADDY" "$CADDY_BINARY"
   sudo chmod 755 "$CADDY_BINARY"
   echo "Caddy installed to $CADDY_BINARY"
 fi
 
 echo "Setting up Caddy config directory"
-sudo mkdir -p "$CADDY_CONF_DIR/sites"
-sudo chown root:admin "$CADDY_CONF_DIR"
-sudo chown root:admin "$CADDY_CONF_DIR/sites"
-sudo chmod 775 "$CADDY_CONF_DIR/sites"
-sudo ln -nsf "$dotfiles_directory/caddy/Caddyfile" "$CADDY_CONF_DIR/Caddyfile"
-sudo chmod o+r "$CADDY_CONF_DIR/Caddyfile"
+caddy_conf_ok=true
+[ ! -d "$CADDY_CONF_DIR/sites" ] && caddy_conf_ok=false
+[ "$(stat -f '%Su:%Sg' "$CADDY_CONF_DIR" 2>/dev/null)" != "root:admin" ] && caddy_conf_ok=false
+[ "$(readlink "$CADDY_CONF_DIR/Caddyfile" 2>/dev/null)" != "$dotfiles_directory/caddy/Caddyfile" ] && caddy_conf_ok=false
+if [ "$force" = true ] || [ "$caddy_conf_ok" = false ]; then
+  sudo mkdir -p "$CADDY_CONF_DIR/sites"
+  sudo chown root:admin "$CADDY_CONF_DIR"
+  sudo chown root:admin "$CADDY_CONF_DIR/sites"
+  sudo chmod 775 "$CADDY_CONF_DIR/sites"
+  sudo ln -nsf "$dotfiles_directory/caddy/Caddyfile" "$CADDY_CONF_DIR/Caddyfile"
+  sudo chmod o+r "$CADDY_CONF_DIR/Caddyfile"
+else
+  echo "Caddy config directory already configured"
+fi
+
+echo "Setting up Caddy data directory"
+if [ "$force" = true ] || [ ! -d /usr/local/share/caddy ] || [ "$(stat -f '%Su:%Sg' /usr/local/share/caddy 2>/dev/null)" != "root:wheel" ]; then
+  sudo mkdir -p /usr/local/share/caddy
+  sudo chown root:wheel /usr/local/share/caddy
+else
+  echo "Caddy data directory already configured"
+fi
 
 if [ -f "$CADDY_SUDOERS_DEST" ] && [ "$force" = false ]; then
   echo "Caddy sudoers file already installed"
@@ -221,11 +237,43 @@ if [ -f "$CADDY_PLIST_DEST" ] && [ "$force" = false ]; then
   echo "Caddy LaunchDaemon already installed"
 else
   echo "Installing Caddy LaunchDaemon"
+  sudo launchctl unload "$CADDY_PLIST_DEST" 2>/dev/null || true
   sudo cp "$CADDY_PLIST_SRC" "$CADDY_PLIST_DEST"
   sudo chown root:wheel "$CADDY_PLIST_DEST"
   sudo chmod 644 "$CADDY_PLIST_DEST"
   sudo launchctl load "$CADDY_PLIST_DEST"
   echo "Caddy LaunchDaemon installed and loaded"
+fi
+
+echo ""
+echo "###############################################################################"
+echo "# pf (local HTTPS redirect)"
+echo "###############################################################################"
+
+PF_ANCHOR_SRC="$dotfiles_directory/caddy/pf.anchor"
+PF_ANCHOR_DEST="/etc/pf.anchors/com.danhorst.caddy"
+PF_PLIST_SRC="$dotfiles_directory/caddy/com.danhorst.pf.plist"
+PF_PLIST_DEST="/Library/LaunchDaemons/com.danhorst.pf.plist"
+
+echo "Installing pf anchor"
+if [ "$force" = true ] || ! cmp -s "$PF_ANCHOR_SRC" "$PF_ANCHOR_DEST" 2>/dev/null; then
+  sudo cp "$PF_ANCHOR_SRC" "$PF_ANCHOR_DEST"
+  sudo pfctl -a com.apple/caddy -f "$PF_ANCHOR_DEST" 2>/dev/null || true
+  sudo pfctl -e 2>/dev/null || true
+else
+  echo "pf anchor already up to date"
+fi
+
+if [ -f "$PF_PLIST_DEST" ] && [ "$force" = false ]; then
+  echo "pf LaunchDaemon already installed"
+else
+  echo "Installing pf LaunchDaemon"
+  sudo launchctl unload "$PF_PLIST_DEST" 2>/dev/null || true
+  sudo cp "$PF_PLIST_SRC" "$PF_PLIST_DEST"
+  sudo chown root:wheel "$PF_PLIST_DEST"
+  sudo chmod 644 "$PF_PLIST_DEST"
+  sudo launchctl load "$PF_PLIST_DEST"
+  echo "pf LaunchDaemon installed and loaded"
 fi
 
 echo ""

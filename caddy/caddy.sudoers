@@ -1,2 +1,4 @@
 %admin ALL=(root) NOPASSWD: /bin/launchctl load /Library/LaunchDaemons/com.danhorst.caddy.plist
 %admin ALL=(root) NOPASSWD: /bin/launchctl unload /Library/LaunchDaemons/com.danhorst.caddy.plist
+%admin ALL=(root) NOPASSWD: /bin/launchctl load /Library/LaunchDaemons/com.danhorst.pf.plist
+%admin ALL=(root) NOPASSWD: /bin/launchctl unload /Library/LaunchDaemons/com.danhorst.pf.plist

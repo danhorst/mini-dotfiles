@@ -12,6 +12,11 @@
     <string>/etc/caddy/Caddyfile</string>
     <string>--watch</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/var/root</string>
+  </dict>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>

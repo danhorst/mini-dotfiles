@@ -22,4 +22,12 @@ trap cleanup EXIT INT TERM
 ln -sf "$CONF_SRC" "$CONF_DEST"
 caddy reload --config "$CADDYFILE"
 
+echo "caddy: serving"
+grep -E '^\S+\s*\{' "$CONF_SRC" | sed 's/[[:space:]]*{//' | while read -r host; do
+  case "$host" in
+    http://*|https://*) echo "  $host" ;;
+    *) echo "  https://$host" ;;
+  esac
+done
+
 while :; do sleep 3600; done
