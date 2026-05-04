@@ -151,3 +151,17 @@ eval "$(direnv hook zsh)"
 
 export PATH
 eval "$(mise activate zsh)"
+
+########################################################################
+# Prompt
+########################################################################
+
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats ' (%b%u%c)'
+zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
+zstyle ':vcs_info:git:*' check-for-changes yes
+zstyle ':vcs_info:git:*' unstagedstr '*'
+zstyle ':vcs_info:git:*' stagedstr '+'
+setopt PROMPT_SUBST
+PROMPT='%~${vcs_info_msg_0_} > '
