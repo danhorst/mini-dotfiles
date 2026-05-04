@@ -157,11 +157,24 @@ eval "$(mise activate zsh)"
 ########################################################################
 
 autoload -Uz vcs_info
-precmd() { vcs_info }
+
+precmd() {
+  vcs_info
+  if [[ -z $vcs_info_msg_0_ ]]; then
+    _vcs_color=""
+  elif [[ $vcs_info_msg_0_ == *'*'* ]]; then
+    _vcs_color="%F{red}"      # unstaged changes
+  elif [[ $vcs_info_msg_0_ == *'+'* ]]; then
+    _vcs_color="%F{yellow}"   # staged only
+  else
+    _vcs_color="%F{green}"    # clean
+  fi
+}
+
 zstyle ':vcs_info:git:*' formats ' (%b%u%c)'
 zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
 zstyle ':vcs_info:git:*' check-for-changes yes
 zstyle ':vcs_info:git:*' unstagedstr '*'
 zstyle ':vcs_info:git:*' stagedstr '+'
 setopt PROMPT_SUBST
-PROMPT='%~${vcs_info_msg_0_} > '
+PROMPT='%F{242}%~%f${_vcs_color}${vcs_info_msg_0_}%f > '
