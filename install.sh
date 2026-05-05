@@ -8,6 +8,26 @@ while getopts "f" opt; do
   esac
 done
 
+safe_symlink() {
+  local target="$1"
+  local link_name="$2"
+
+  if [ -L "$link_name" ]; then
+    current_target="$(readlink "$link_name")"
+    if [ "$current_target" = "$target" ]; then
+      echo "  Symlink already exists: $link_name"
+    else
+      ln -nsf "$target" "$link_name"
+      echo "  Updated symlink: $link_name -> $target (was -> $current_target)"
+    fi
+  elif [ -e "$link_name" ]; then
+    echo "  WARNING: $link_name exists as a real file/directory. Skipping."
+  else
+    ln -nsf "$target" "$link_name"
+    echo "  Created symlink: $link_name -> $target"
+  fi
+}
+
 echo "###############################################################################"
 echo "# Xcode"
 echo "###############################################################################"
@@ -26,9 +46,10 @@ dotfiles_directory="$(pwd)"
 dotfiles="$dotfiles_directory/shell"
 
 echo "Symlinking dotfiles into $HOME"
-while IFS= read -r -d '' f; do
-  ln -nsf "$f" "$HOME/.$(basename "$f")"
-done < <(find "$dotfiles" -maxdepth 1 -mindepth 1 -print0)
+while IFS= read -r -d '' file; do
+  filename="$(basename "$file")"
+  safe_symlink "$file" "$HOME/.$filename"
+done < <(find "$dotfiles" -maxdepth 1 -type f -print0)
 
 echo ""
 echo "###############################################################################"
@@ -36,12 +57,8 @@ echo "# Utilities"
 echo "###############################################################################"
 echo ""
 
-if [ -L "$HOME/.bin" ]; then
-  echo "Personal scripts are already linked"
-else
-  echo "Setting up personal scripts"
-  ln -nsf "$dotfiles_directory/bin" "$HOME/.bin"
-fi
+echo "Setting up personal scripts"
+safe_symlink "$dotfiles_directory/bin" "$HOME/.bin"
 
 echo ""
 echo "###############################################################################"
@@ -85,7 +102,7 @@ fi
 
 if [ -d "$HOME/.lima/default" ]; then
   echo "Ensure Lima default VM config is tracked"
-  ln -nsf "$HOME/git/dotfiles/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"
+  safe_symlink "$dotfiles_directory/lima/default/lima.yaml" "$HOME/.lima/default/lima.yaml"
 else
   echo "Lima default VM is not set up"
 fi
@@ -97,9 +114,20 @@ echo "##########################################################################
 
 mkdir -p "$HOME/.claude"
 echo "Symlinking Claude Code config into $HOME/.claude"
-while IFS= read -r -d '' f; do
-  ln -nsf "$f" "$HOME/.claude/$(basename "$f")"
-done < <(find "$dotfiles_directory/claude" -maxdepth 1 -mindepth 1 -print0)
+while IFS= read -r -d '' file; do
+  filename="$(basename "$file")"
+  safe_symlink "$file" "$HOME/.claude/$filename"
+done < <(find "$dotfiles_directory/claude" -maxdepth 1 -type f -print0)
+
+echo ""
+echo "###############################################################################"
+echo "# Ghostty"
+echo "###############################################################################"
+
+GHOSTTY_CONF_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+mkdir -p "$GHOSTTY_CONF_DIR"
+echo "Symlinking Ghostty config"
+safe_symlink "$dotfiles_directory/ghostty/config" "$GHOSTTY_CONF_DIR/config"
 
 echo ""
 echo "###############################################################################"
@@ -148,7 +176,7 @@ unbound_changed=false
 
 if [ "$force" = true ] || [ "$(readlink "$UNBOUND_LOCAL")" != "$dotfiles_directory/unbound/local-dev.conf" ]; then
   echo "Symlinking Unbound local zone config"
-  ln -nsf "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
+  safe_symlink "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
   unbound_changed=true
 else
   echo "Unbound local zone config symlink already up to date"
