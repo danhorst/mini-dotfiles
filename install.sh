@@ -31,7 +31,8 @@ safe_symlink() {
 _rule() {
   local char="$1" title="$2"
   local cols width border
-  cols=$(tput cols 2>/dev/null || echo 80)
+  cols=${COLUMNS:-$(stty size </dev/tty 2>/dev/null | awk '{print $2}')}
+  cols=${cols:-80}
   width=$(( cols < 80 ? cols : 80 ))
   border=$(printf "%${width}s" '' | tr ' ' "$char")
   printf '%s\n' "$border"
