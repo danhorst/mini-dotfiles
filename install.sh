@@ -28,18 +28,26 @@ safe_symlink() {
   fi
 }
 
-echo "###############################################################################"
-echo "# Xcode"
-echo "###############################################################################"
+_rule() {
+  local char="$1" title="$2"
+  local cols width border
+  cols=$(tput cols 2>/dev/null || echo 80)
+  width=$(( cols < 80 ? cols : 80 ))
+  border=$(printf "%${width}s" '' | tr ' ' "$char")
+  printf '%s\n' "$border"
+  printf '%s %s\n' "$char" "$title"
+  printf '%s\n' "$border"
+}
+
+section() { _rule "#" "$1"; }
+banner()  { _rule "*" "$1"; }
+
+section "Xcode"
 
 echo "Ensuring Xcode utilities are installed"
 xcode-select --install
 
-echo ""
-echo "###############################################################################"
-echo "# Dotfiles"
-echo "###############################################################################"
-echo ""
+section "Dotfiles"
 
 echo "WARN: Run install script from the root of the dotfiles repo"
 dotfiles_directory="$(pwd)"
@@ -51,35 +59,22 @@ while IFS= read -r -d '' file; do
   safe_symlink "$file" "$HOME/.$filename"
 done < <(find "$dotfiles" -maxdepth 1 -type f -print0)
 
-echo ""
-echo "###############################################################################"
-echo "# Utilities"
-echo "###############################################################################"
-echo ""
+section "Utilities"
 
 echo "Setting up personal scripts"
 safe_symlink "$dotfiles_directory/bin" "$HOME/.bin"
 
-echo ""
-echo "###############################################################################"
-echo "# Packages"
-echo "###############################################################################"
+section "Packages"
 
 echo "Ensureing baseline brew formulas are installed"
 brew bundle --file Brewfile -v
 
-echo ""
-echo "###############################################################################"
-echo "# mise"
-echo "###############################################################################"
+section "mise"
 
 echo "Installing mise-managed tools"
 mise install
 
-echo ""
-echo "###############################################################################"
-echo "# Rust & Crates"
-echo "###############################################################################"
+section "Rust & Crates"
 
 rustup default stable
 rustup update
@@ -89,10 +84,7 @@ cargo install fd-find
 cargo install git-delta
 cargo install ripgrep
 
-echo ""
-echo "###############################################################################"
-echo "# Lima"
-echo "###############################################################################"
+section "Lima"
 
 if [ -d "/Users/lima" ]; then
   echo "Lima shared directory is set up"
@@ -107,10 +99,7 @@ else
   echo "Lima default VM is not set up"
 fi
 
-echo ""
-echo "###############################################################################"
-echo "# Claude Code"
-echo "###############################################################################"
+section "Claude Code"
 
 mkdir -p "$HOME/.claude"
 echo "Symlinking Claude Code config into $HOME/.claude"
@@ -119,28 +108,19 @@ while IFS= read -r -d '' file; do
   safe_symlink "$file" "$HOME/.claude/$filename"
 done < <(find "$dotfiles_directory/claude" -maxdepth 1 -type f -print0)
 
-echo ""
-echo "###############################################################################"
-echo "# Ghostty"
-echo "###############################################################################"
+section "Ghostty"
 
 GHOSTTY_CONF_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
 mkdir -p "$GHOSTTY_CONF_DIR"
 echo "Symlinking Ghostty config"
 safe_symlink "$dotfiles_directory/ghostty/config" "$GHOSTTY_CONF_DIR/config"
 
-echo ""
-echo "###############################################################################"
-echo "# Playwright"
-echo "###############################################################################"
+section "Playwright"
 
 echo "Installing Playwright Chromium browser"
 mise exec -- playwright install chromium
 
-echo ""
-echo "###############################################################################"
-echo "# SSH allowed signers"
-echo "###############################################################################"
+section "SSH allowed signers"
 
 ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
 SSH_KEY="$(git config --global user.signingkey)"
@@ -163,10 +143,7 @@ else
   fi
 fi
 
-echo ""
-echo "###############################################################################"
-echo "# Unbound (local DNS)"
-echo "###############################################################################"
+section "Unbound (local DNS)"
 
 UNBOUND_PREFIX="$(brew --prefix)/etc/unbound"
 UNBOUND_CONF="$UNBOUND_PREFIX/unbound.conf"
@@ -202,10 +179,7 @@ else
   echo "No Unbound changes; skipping restart"
 fi
 
-echo ""
-echo "###############################################################################"
-echo "# Caddy"
-echo "###############################################################################"
+section "Caddy"
 
 CADDY_BINARY="/usr/local/bin/caddy"
 CADDY_CONF_DIR="/etc/caddy"
@@ -273,10 +247,7 @@ else
   echo "Caddy LaunchDaemon installed and loaded"
 fi
 
-echo ""
-echo "###############################################################################"
-echo "# pf (local HTTPS redirect)"
-echo "###############################################################################"
+section "pf (local HTTPS redirect)"
 
 PF_ANCHOR_SRC="$dotfiles_directory/caddy/pf.anchor"
 PF_ANCHOR_DEST="/etc/pf.anchors/com.danhorst.caddy"
@@ -304,7 +275,4 @@ else
   echo "pf LaunchDaemon installed and loaded"
 fi
 
-echo ""
-echo "*******************************************************************************"
-echo "Done!"
-echo "*******************************************************************************"
+banner "Done!"
