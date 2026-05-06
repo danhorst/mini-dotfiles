@@ -17,7 +17,6 @@ sudo apt install \
 	bison \
 	build-essential \
 	curl \
-	direnv \
 	git \
 	libffi-dev \
 	libgdbm-dev \

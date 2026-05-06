@@ -4,7 +4,7 @@ Personal dotfiles for macOS.
 
 ## What's included
 
-- **Shell** — zsh config, 40+ git/utility aliases, `fzf` with `ripgrep` and `bat` previews, `direnv`
+- **Shell** — zsh config, 40+ git/utility aliases, `fzf` with `ripgrep` and `bat` previews
 - **Terminal** — Ghostty config, `tmux` (Ctrl-Space prefix, mouse, Alt-arrow panes), vi-mode `inputrc`
 - **Editor** — `vim`, Zed, VS Code
 - **Git** — `delta` and `difftastic` for diffs, comprehensive aliases including branch cleanup helpers
