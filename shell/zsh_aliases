@@ -34,6 +34,9 @@ alias grm='git ls-files -d | xargs git rm; gst'
 alias gsh='git show'
 alias gst='git status --ignore-submodules=dirty'
 
+alias mr='machine_report'
+
+
 ###############################################################################
 # SSH
 ###############################################################################
