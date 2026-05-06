@@ -9,7 +9,7 @@ Personal dotfiles for macOS.
 - **Editor** — `vim`, Zed, VS Code
 - **Git** — `delta` and `difftastic` for diffs, comprehensive aliases including branch cleanup helpers
 - **Runtimes** — `mise` managing NodeJS, Python, and Ruby; `rbenv` and `nvm` in Lima VMs
-- **Local dev infrastructure** — `caddy` for local HTTPS reverse proxy, `unbound` for `.test` DNS resolution
+- **Local dev infrastructure** — `caddy` for local HTTPS reverse proxy, `unbound` for `.test` DNS resolution, Power Nap disabled for stable Continuity/Universal Control
 - **Claude Code** — settings and tool preferences (`ast-grep`, `sd`, `yq`)
 - **Homebrew** — Brewfile with formulae and casks for the full environment
 
@@ -36,6 +36,7 @@ The script will:
 7. Symlink Claude Code config into `$HOME/.claude/`
 8. Configure `unbound` for `.test` DNS (writes to `/etc/resolver/test`)
 9. Install the `caddy` sudoers file for port 443 access
+10. Disable Power Nap via `pmset` (fixes Continuity/Universal Control disconnections)
 
 Pass `-f` to force re-running steps that would otherwise be skipped.
 
