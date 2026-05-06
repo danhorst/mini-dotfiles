@@ -276,4 +276,14 @@ else
   echo "pf LaunchDaemon installed and loaded"
 fi
 
+section "Power Management"
+
+current_powernap=$(pmset -g | awk '/powernap/ {print $2}')
+if [ "$current_powernap" = "0" ]; then
+  echo "Power Nap already disabled"
+else
+  echo "Disabling Power Nap (prevents Continuity/Universal Control disconnections)"
+  sudo pmset -a powernap 0
+fi
+
 banner "Done!"
