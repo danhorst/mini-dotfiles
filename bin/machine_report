@@ -14,8 +14,6 @@ BORDERS_AND_PADDING=7
 # Basic configuration, change as needed
 report_title="UNITED STATES GRAPHICS COMPANY"
 last_login_ip_present=0
-zfs_present=0
-zfs_filesystem="zroot/ROOT/os"
 
 # Utilities
 max_length() {
@@ -53,10 +51,8 @@ set_current_len() {
         "$cpu_1min_bar_graph"                                    \
         "$cpu_5min_bar_graph"                                    \
         "$cpu_15min_bar_graph"                                   \
-        "$zfs_used_gb/$zfs_available_gb GB [$disk_percent%]"     \
-        "$disk_bar_graph"                                        \
-        "$zfs_health"                                            \
         "$root_used_gb/$root_total_gb GB [$disk_percent%]"       \
+        "$disk_bar_graph"                                        \
         "${mem_used_gb}/${mem_total_gb} GiB [${mem_percent}%]"   \
         "${mem_bar_graph}"                                       \
         "$last_login_time"                                       \
@@ -297,6 +293,9 @@ else
     net_dns_ip=($(grep '^nameserver [0-9.]' /etc/resolv.conf | awk '{print $2}'))
 fi
 
+# Uptime (cached — reused for load averages and sys_uptime)
+uptime_raw=$(uptime)
+
 # CPU Information
 if [[ "$OSTYPE" == "darwin"* ]]; then
     cpu_model="$(sysctl -n machdep.cpu.brand_string 2>/dev/null | awk '{print $1, $2, $3, $4}')"
@@ -308,10 +307,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         fi
     fi
 
+    hw_info=$(system_profiler SPHardwareDataType 2>/dev/null)
+
     # Check if running in a VM
     if sysctl -n machdep.cpu.features 2>/dev/null | grep -q "VMM"; then
         cpu_hypervisor="Virtual Machine"
-    elif system_profiler SPHardwareDataType 2>/dev/null | grep -q "Virtual"; then
+    elif echo "$hw_info" | grep -q "Virtual"; then
         cpu_hypervisor="Virtual Machine"
     else
         cpu_hypervisor="Bare Metal"
@@ -330,7 +331,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         # NOTE: These are approximate P-core max frequencies; update as new chips release
         chip_name=$(sysctl -n machdep.cpu.brand_string 2>/dev/null)
         if [ -z "$chip_name" ]; then
-            chip_name=$(system_profiler SPHardwareDataType 2>/dev/null | awk -F': ' '/Chip/ {print $2}')
+            chip_name=$(echo "$hw_info" | awk -F': ' '/Chip/ {print $2}')
         fi
         case "$chip_name" in
             *"M1"*)           cpu_freq="3.20" ;;
@@ -355,9 +356,9 @@ else
 fi
 
 # macOS uses "load averages:" (plural), Linux uses "load average:" (singular)
-load_avg_1min=$(uptime | awk -F'load averages?: ' '{print $2}' | cut -d ',' -f1 | tr -d ' ')
-load_avg_5min=$(uptime | awk -F'load averages?: ' '{print $2}' | cut -d ',' -f2 | tr -d ' ')
-load_avg_15min=$(uptime | awk -F'load averages?: ' '{print $2}' | cut -d ',' -f3 | tr -d ' ')
+load_avg_1min=$(echo "$uptime_raw" | awk -F'load averages?: ' '{print $2}' | cut -d ',' -f1 | tr -d ' ')
+load_avg_5min=$(echo "$uptime_raw" | awk -F'load averages?: ' '{print $2}' | cut -d ',' -f2 | tr -d ' ')
+load_avg_15min=$(echo "$uptime_raw" | awk -F'load averages?: ' '{print $2}' | cut -d ',' -f3 | tr -d ' ')
 
 # Memory Information
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -391,77 +392,46 @@ mem_available_gb=$(echo "$mem_available" | awk '{ printf "%.2f", $1 / (1024 * 10
 mem_used_gb=$(echo "$mem_used" | awk '{ printf "%.2f", $1 / (1024 * 1024) }')
 
 # Disk Information
-# Check for ZFS first (works on both Linux and macOS with OpenZFS)
-if [[ "$OSTYPE" != "darwin"* ]] && command -v zfs &>/dev/null && grep -q "zfs" /proc/mounts 2>/dev/null; then
-    # Linux ZFS
-    zfs_present=1
-    zfs_health=$(zpool status -x zroot | grep -q "is healthy" && echo "HEALTH O.K." || echo "N/A")
-    zfs_available=$(zfs get -o value -Hp available "$zfs_filesystem" 2>/dev/null)
-    zfs_used=$(zfs get -o value -Hp used "$zfs_filesystem" 2>/dev/null)
-    if [ -n "$zfs_available" ] && [ -n "$zfs_used" ]; then
-        zfs_available_gb=$(echo "$zfs_available" | awk '{ printf "%.2f", $1 / (1024 * 1024 * 1024) }')
-        zfs_used_gb=$(echo "$zfs_used" | awk '{ printf "%.2f", $1 / (1024 * 1024 * 1024) }')
-        disk_percent=$(awk -v used="$zfs_used" -v available="$zfs_available" 'BEGIN { printf "%.2f", (used / available) * 100 }')
-    else
-        zfs_present=0
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS APFS: use diskutil to get container-level info (matches Finder)
+    if command -v diskutil &>/dev/null; then
+        container_total=$(diskutil info / 2>/dev/null | awk -F': *' '/Container Total Space/ {print $2}' | awk '{print $1}')
+        container_free=$(diskutil info / 2>/dev/null | awk -F': *' '/Container Free Space/ {print $2}' | awk '{print $1}')
     fi
-elif command -v zpool &>/dev/null && zpool list &>/dev/null 2>&1; then
-    # macOS ZFS (OpenZFS)
-    zfs_present=1
-    zfs_health=$(zpool status -x zroot 2>/dev/null | grep -q "is healthy" && echo "HEALTH O.K." || echo "N/A")
-    zfs_available=$(zfs get -o value -Hp available "$zfs_filesystem" 2>/dev/null)
-    zfs_used=$(zfs get -o value -Hp used "$zfs_filesystem" 2>/dev/null)
-    if [ -n "$zfs_available" ] && [ -n "$zfs_used" ]; then
-        zfs_available_gb=$(echo "$zfs_available" | awk '{ printf "%.2f", $1 / (1024 * 1024 * 1024) }')
-        zfs_used_gb=$(echo "$zfs_used" | awk '{ printf "%.2f", $1 / (1024 * 1024 * 1024) }')
-        disk_percent=$(awk -v used="$zfs_used" -v available="$zfs_available" 'BEGIN { printf "%.2f", (used / available) * 100 }')
-    else
-        zfs_present=0
-    fi
-fi
 
-if [ "$zfs_present" -eq 0 ]; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS APFS: use diskutil to get container-level info (matches Finder)
-        if command -v diskutil &>/dev/null; then
-            container_total=$(diskutil info / 2>/dev/null | awk -F': *' '/Container Total Space/ {print $2}' | awk '{print $1}')
-            container_free=$(diskutil info / 2>/dev/null | awk -F': *' '/Container Free Space/ {print $2}' | awk '{print $1}')
-        fi
-
-        if [ -n "$container_total" ] && [ -n "$container_free" ]; then
-            root_total_gb="$container_total"
-            root_available_gb="$container_free"
-            root_used_gb=$(awk -v total="$root_total_gb" -v avail="$root_available_gb" 'BEGIN { printf "%.2f", total - avail }')
-            disk_percent=$(awk -v used="$root_used_gb" -v total="$root_total_gb" 'BEGIN { printf "%.2f", (used / total) * 100 }')
-            # Convert to KB for bar graph calculation
-            root_used=$(awk -v gb="$root_used_gb" 'BEGIN { printf "%.0f", gb * 1024 * 1024 }')
-            root_total=$(awk -v gb="$root_total_gb" 'BEGIN { printf "%.0f", gb * 1024 * 1024 }')
-        else
-            # Fallback: standard df for non-APFS macOS
-            root_partition="/"
-            root_used=$(df -k "$root_partition" | awk 'NR==2 {print $3}')
-            root_available=$(df -k "$root_partition" | awk 'NR==2 {print $4}')
-            root_total=$((root_used + root_available))
-            root_total_gb=$(awk -v total="$root_total" 'BEGIN { printf "%.2f", total / (1024 * 1024) }')
-            root_used_gb=$(awk -v used="$root_used" 'BEGIN { printf "%.2f", used / (1024 * 1024) }')
-            disk_percent=$(awk -v used="$root_used" -v total="$root_total" 'BEGIN { printf "%.2f", (used / total) * 100 }')
-        fi
+    if [ -n "$container_total" ] && [ -n "$container_free" ]; then
+        root_total_gb="$container_total"
+        root_available_gb="$container_free"
+        root_used_gb=$(awk -v total="$root_total_gb" -v avail="$root_available_gb" 'BEGIN { printf "%.2f", total - avail }')
+        disk_percent=$(awk -v used="$root_used_gb" -v total="$root_total_gb" 'BEGIN { printf "%.2f", (used / total) * 100 }')
+        # Convert to KB for bar graph calculation
+        root_used=$(awk -v gb="$root_used_gb" 'BEGIN { printf "%.0f", gb * 1024 * 1024 }')
+        root_total=$(awk -v gb="$root_total_gb" 'BEGIN { printf "%.0f", gb * 1024 * 1024 }')
     else
-        # Linux: use df
+        # Fallback: standard df for non-APFS macOS
         root_partition="/"
-        root_used=$(df -m "$root_partition" | awk 'NR==2 {print $3}')
-        root_total=$(df -m "$root_partition" | awk 'NR==2 {print $2}')
-        root_total_gb=$(awk -v total="$root_total" 'BEGIN { printf "%.2f", total / 1024 }')
-        root_used_gb=$(awk -v used="$root_used" 'BEGIN { printf "%.2f", used / 1024 }')
+        root_used=$(df -k "$root_partition" | awk 'NR==2 {print $3}')
+        root_available=$(df -k "$root_partition" | awk 'NR==2 {print $4}')
+        root_total=$((root_used + root_available))
+        root_total_gb=$(awk -v total="$root_total" 'BEGIN { printf "%.2f", total / (1024 * 1024) }')
+        root_used_gb=$(awk -v used="$root_used" 'BEGIN { printf "%.2f", used / (1024 * 1024) }')
         disk_percent=$(awk -v used="$root_used" -v total="$root_total" 'BEGIN { printf "%.2f", (used / total) * 100 }')
     fi
+else
+    # Linux: use df
+    root_partition="/"
+    root_used=$(df -m "$root_partition" | awk 'NR==2 {print $3}')
+    root_total=$(df -m "$root_partition" | awk 'NR==2 {print $2}')
+    root_total_gb=$(awk -v total="$root_total" 'BEGIN { printf "%.2f", total / 1024 }')
+    root_used_gb=$(awk -v used="$root_used" 'BEGIN { printf "%.2f", used / 1024 }')
+    disk_percent=$(awk -v used="$root_used" -v total="$root_total" 'BEGIN { printf "%.2f", (used / total) * 100 }')
 fi
 
 # Last login and Uptime
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS uses 'last' command
     last_login=$(last -1 "$USER" 2>/dev/null | head -1)
-    if [ -n "$last_login" ] && ! echo "$last_login" | grep -q "^$"; then
+    if [ -n "$last_login" ] && [[ "$(echo "$last_login" | awk '{print $1}')" == "$USER" ]]; then
         last_login_host=$(echo "$last_login" | awk '{print $3}')
         if [[ "$last_login_host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             last_login_ip_present=1
@@ -475,7 +445,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 
     # macOS uptime doesn't support -p flag, parse standard output
-    uptime_raw=$(uptime)
     if echo "$uptime_raw" | grep -q "day"; then
         days=$(echo "$uptime_raw" | sed -E 's/.*up ([0-9]+) day.*/\1/')
         if echo "$uptime_raw" | grep -qE 'day[s]?, +[0-9]+:[0-9]+'; then
@@ -492,6 +461,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         if echo "$uptime_raw" | grep -qE 'up +[0-9]+:[0-9]+'; then
             hours=$(echo "$uptime_raw" | sed -E 's/.*up +([0-9]+):([0-9]+).*/\1/')
             mins=$(echo "$uptime_raw" | sed -E 's/.*up +([0-9]+):([0-9]+).*/\2/')
+            sys_uptime="${hours}h ${mins}m"
+        elif echo "$uptime_raw" | grep -qE 'up +[0-9]+ hr'; then
+            hours=$(echo "$uptime_raw" | sed -E 's/.*up +([0-9]+) hr.*/\1/')
+            mins=$(echo "$uptime_raw" | sed -E 's/.*[0-9]+ hr[s]?, +([0-9]+) min.*/\1/')
+            [ -z "$mins" ] && mins=0
             sys_uptime="${hours}h ${mins}m"
         elif echo "$uptime_raw" | grep -qE 'up +[0-9]+ min'; then
             mins=$(echo "$uptime_raw" | sed -E 's/.*up +([0-9]+) min.*/\1/')
@@ -527,12 +501,7 @@ cpu_5min_bar_graph=$(bar_graph "$load_avg_5min" "$cpu_cores")
 cpu_15min_bar_graph=$(bar_graph "$load_avg_15min" "$cpu_cores")
 
 mem_bar_graph=$(bar_graph "$mem_used" "$mem_total")
-
-if [ $zfs_present -eq 1 ]; then
-    disk_bar_graph=$(bar_graph "$zfs_used" "$zfs_available")
-else
-    disk_bar_graph=$(bar_graph "$root_used" "$root_total")
-fi
+disk_bar_graph=$(bar_graph "$root_used" "$root_total")
 
 # Machine Report
 PRINT_HEADER
@@ -559,18 +528,9 @@ PRINT_DATA "CPU FREQ" "$cpu_freq GHz"
 PRINT_DATA "LOAD  1m" "$cpu_1min_bar_graph"
 PRINT_DATA "LOAD  5m" "$cpu_5min_bar_graph"
 PRINT_DATA "LOAD 15m" "$cpu_15min_bar_graph"
-
-if [ $zfs_present -eq 1 ]; then
-    PRINT_DIVIDER
-    PRINT_DATA "VOLUME" "$zfs_used_gb/$zfs_available_gb GB [$disk_percent%]"
-    PRINT_DATA "DISK USAGE" "$disk_bar_graph"
-    PRINT_DATA "ZFS HEALTH" "$zfs_health"
-else
-    PRINT_DIVIDER
-    PRINT_DATA "VOLUME" "$root_used_gb/$root_total_gb GB [$disk_percent%]"
-    PRINT_DATA "DISK USAGE" "$disk_bar_graph"
-fi
-
+PRINT_DIVIDER
+PRINT_DATA "VOLUME" "$root_used_gb/$root_total_gb GB [$disk_percent%]"
+PRINT_DATA "DISK USAGE" "$disk_bar_graph"
 PRINT_DIVIDER
 PRINT_DATA "MEMORY" "${mem_used_gb}/${mem_total_gb} GiB [${mem_percent}%]"
 PRINT_DATA "USAGE" "${mem_bar_graph}"
