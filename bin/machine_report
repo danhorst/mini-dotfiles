@@ -1,6 +1,10 @@
 #!/bin/bash
+# This script has been modified to work better on MacOS.
+#
+# Original source:
 # TR-100 Machine Report
 # Copyright © 2024, U.S. Graphics, LLC. BSD-3-Clause License.
+# https://github.com/usgraphics/usgc-machine-report
 
 # Global variables
 MIN_NAME_LEN=5
