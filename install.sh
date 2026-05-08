@@ -112,9 +112,13 @@ done < <(find "$dotfiles_directory/claude" -maxdepth 1 -type f -print0)
 section "Ghostty"
 
 GHOSTTY_CONF_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+GHOSTTY_XDG_DIR="$HOME/.config/ghostty"
 mkdir -p "$GHOSTTY_CONF_DIR"
+mkdir -p "$GHOSTTY_XDG_DIR"
 echo "Symlinking Ghostty config"
 safe_symlink "$dotfiles_directory/ghostty/config" "$GHOSTTY_CONF_DIR/config"
+echo "Symlinking Ghostty themes"
+safe_symlink "$dotfiles_directory/ghostty/themes" "$GHOSTTY_XDG_DIR/themes"
 
 section "Playwright"
 
