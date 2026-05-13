@@ -3,9 +3,12 @@ LOG_DIR="${HOME}/Library/Logs/universalcontrol"
 mkdir -p "$LOG_DIR"
 LOG_FILE="${LOG_DIR}/$(date +%Y-%m-%d_%H-%M-%S).log"
 
-echo "Logging to $LOG_FILE"
+sudo -v
+
 sudo log stream \
   --predicate 'subsystem == "com.apple.universalcontrol"' \
   --info \
-  --debug \
-  | tee "$LOG_FILE"
+  --debug >> "$LOG_FILE" 2>&1 &
+
+echo "Logging to $LOG_FILE (PID $!)"
+echo "Stop with: kill $!"
