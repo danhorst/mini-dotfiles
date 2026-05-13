@@ -75,16 +75,6 @@ section "mise"
 echo "Installing mise-managed tools"
 mise install
 
-section "Rust & Crates"
-
-rustup default stable
-rustup update
-
-cargo install bat
-cargo install fd-find
-cargo install git-delta
-cargo install ripgrep
-
 section "Lima"
 
 if [ -d "/Users/lima" ]; then
