@@ -138,6 +138,23 @@ else
   fi
 fi
 
+# ShellFish (iPhone) key — export from ShellFish > Settings > SSH Keys,
+# then copy to this path before running install.
+SHELLFISH_KEY="$HOME/.ssh/shellfish-iphone.pub"
+
+if [ ! -f "$SHELLFISH_KEY" ]; then
+  echo "WARN: ShellFish key not found at $SHELLFISH_KEY; skipping"
+  echo "  Export your public key from ShellFish > Settings > SSH Keys and copy it there"
+else
+  key_data=$(awk '{print $2}' "$SHELLFISH_KEY")
+  if grep -qF "$key_data" "$ALLOWED_SIGNERS" 2>/dev/null; then
+    echo "ShellFish key already in allowed signers"
+  else
+    echo "$GIT_EMAIL $(cat "$SHELLFISH_KEY")" >> "$ALLOWED_SIGNERS"
+    echo "Added ShellFish key to $ALLOWED_SIGNERS"
+  fi
+fi
+
 section "Unbound (local DNS)"
 
 UNBOUND_PREFIX="$(brew --prefix)/etc/unbound"
