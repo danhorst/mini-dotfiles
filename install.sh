@@ -115,7 +115,7 @@ section "Playwright"
 echo "Installing Playwright Chromium browser"
 mise exec -- playwright install chromium
 
-section "SSH allowed signers"
+section "SSH key management"
 
 ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
 SSH_KEY="$(git config --global user.signingkey)"
@@ -147,11 +147,20 @@ if [ ! -f "$SHELLFISH_KEY" ]; then
   echo "  Export your public key from ShellFish > Settings > SSH Keys and copy it there"
 else
   key_data=$(awk '{print $2}' "$SHELLFISH_KEY")
+
   if grep -qF "$key_data" "$ALLOWED_SIGNERS" 2>/dev/null; then
     echo "ShellFish key already in allowed signers"
   else
     echo "$GIT_EMAIL $(cat "$SHELLFISH_KEY")" >> "$ALLOWED_SIGNERS"
     echo "Added ShellFish key to $ALLOWED_SIGNERS"
+  fi
+
+  AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
+  if grep -qF "$key_data" "$AUTHORIZED_KEYS" 2>/dev/null; then
+    echo "ShellFish key already in authorized_keys"
+  else
+    cat "$SHELLFISH_KEY" >> "$AUTHORIZED_KEYS"
+    echo "Added ShellFish key to $AUTHORIZED_KEYS"
   fi
 fi
 
