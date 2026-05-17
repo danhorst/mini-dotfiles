@@ -17,7 +17,24 @@
       "Bash(xargs ls:*)",
       "Read(//opt/homebrew/share/zsh/**)",
       "Skill(update-config)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(brew tap-info *)",
+      "Bash(brew tap *)",
+      "Read(//opt/homebrew/Library/Taps/danhorst/homebrew-tap/Formula/**)",
+      "Read(//opt/homebrew/Library/Taps/danhorst/homebrew-tap/**)",
+      "Bash(brew upgrade *)",
+      "Bash(xattr *)",
+      "Bash(HOMEBREW_INSTALL_FROM_API=1 brew upgrade *)",
+      "Bash(mkdir /opt/homebrew/Library/Taps/homebrew/test-probe)",
+      "Bash(rmdir /opt/homebrew/Library/Taps/homebrew/test-probe)",
+      "Bash(brew --version)",
+      "Bash(env)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); f=d['formulae'][0]; print\\('deps:', f['dependencies']\\); print\\('tap:', f['tap']\\)\")",
+      "Bash(brew list *)",
+      "Bash(brew install *)",
+      "Read(//Users/dbh/.ssh/**)",
+      "Bash(GIT_CONFIG_COUNT=0 git commit *)",
+      "Bash(GIT_CONFIG_COUNT=0 git *)"
     ]
   }
 }

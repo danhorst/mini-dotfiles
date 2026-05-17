@@ -67,7 +67,8 @@ safe_symlink "$dotfiles_directory/bin" "$HOME/.bin"
 
 section "Packages"
 
-echo "Ensureing baseline brew formulas are installed"
+echo "Ensuring baseline brew formulas are installed"
+brew update
 brew bundle --file Brewfile -v
 
 section "mise"
