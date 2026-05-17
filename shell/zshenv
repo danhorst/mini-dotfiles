@@ -1,0 +1,9 @@
+# When SSHed in with agent forwarding, sign commits with the forwarded key
+# rather than the local key configured in gitconfig.
+# GIT_CONFIG_* env vars are inherited by all child processes (bash scripts,
+# subshells, etc.) — unlike a shell function wrapper which only works in zsh.
+if [[ -n "$SSH_CONNECTION" ]]; then
+  export GIT_CONFIG_COUNT=1
+  export GIT_CONFIG_KEY_0=user.signingkey
+  export GIT_CONFIG_VALUE_0="$HOME/.ssh/shellfish-iphone.pub"
+fi

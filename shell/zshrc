@@ -21,16 +21,6 @@ elif [[ -S "$HOME/.1password/agent.sock" ]]; then
   export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 fi
 
-# When SSHed in with agent forwarding, sign commits with the forwarded key
-# rather than the local Ed25519 key configured in gitconfig.
-git() {
-  if [[ -n "$SSH_CONNECTION" ]]; then
-    command git -c user.signingkey="$HOME/.ssh/shellfish-iphone.pub" "$@"
-  else
-    command git "$@"
-  fi
-}
-
 ########################################################################
 # Homebrew setup
 ########################################################################
