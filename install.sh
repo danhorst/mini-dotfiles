@@ -69,7 +69,7 @@ section "Packages"
 
 echo "Ensuring baseline brew formulas are installed"
 brew update
-brew bundle --file Brewfile -v
+HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v
 
 section "mise"
 
