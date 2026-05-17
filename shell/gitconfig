@@ -69,7 +69,7 @@
 [user]
 	name = Dan Brubaker Horst
 	email = dan.brubaker.horst@gmail.com
-	signingkey = /Users/dbh/.ssh/id_ed25519.pub
+	signingkey = /Users/dbh/.ssh/git_signing.pub
 [clone]
 	defaultRemoteName = origin
 [init]

@@ -127,15 +127,15 @@ if [ -z "$SSH_KEY" ]; then
 else
   if [ ! -f "$SSH_KEY" ]; then
     echo "Signing key $SSH_KEY not found; generating new SSH key"
-    ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "${SSH_KEY%.pub}"
+    ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "${SSH_KEY%.pub}" -N ""
   fi
 
-  if [ -f "$ALLOWED_SIGNERS" ]; then
-    echo "SSH allowed signers file already present"
+  key_fingerprint=$(awk '{print $2}' "$SSH_KEY")
+  if grep -qF "$key_fingerprint" "$ALLOWED_SIGNERS" 2>/dev/null; then
+    echo "Signing key already in allowed signers"
   else
-    echo "Generating SSH allowed signers file"
-    echo "$GIT_EMAIL $(cat "$SSH_KEY")" > "$ALLOWED_SIGNERS"
-    echo "Created $ALLOWED_SIGNERS"
+    echo "$GIT_EMAIL $(cat "$SSH_KEY")" >> "$ALLOWED_SIGNERS"
+    echo "Added signing key to $ALLOWED_SIGNERS"
   fi
 fi
 

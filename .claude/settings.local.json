@@ -34,7 +34,8 @@
       "Bash(brew install *)",
       "Read(//Users/dbh/.ssh/**)",
       "Bash(GIT_CONFIG_COUNT=0 git commit *)",
-      "Bash(GIT_CONFIG_COUNT=0 git *)"
+      "Bash(GIT_CONFIG_COUNT=0 git *)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }
