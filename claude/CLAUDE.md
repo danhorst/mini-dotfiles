@@ -80,32 +80,34 @@ Typo correction only.
 
 ## Context discipline
 
-The 16GB workstation and the three-level context budget (DBH's cognition, agent context windows, machine memory) all push toward keeping the parent session lean.
+The 16GB workstation and three-level context budget (DBH's cognition, agent context windows, machine memory) all push toward keeping the parent session lean.
 
-- Delegate broad searches and large file reads to a sub-agent when the host CLI and active policy allow it, so the parent only sees the summary, not the raw output.
-  When delegation is unavailable or requires explicit user authorization, keep local exploration bounded with targeted `rg`, file ranges, and concise summaries.
-- Default long-running shell commands to background execution so the conversation thread doesn't block.
-- Prefer summarized web fetches over reading raw HTML pages.
-- Read only the file ranges that are actually relevant; don't load a 5000-line file just to find a function — `rg` does that without filling the conversation.
+- Prefer the `Agent` tool with a specific `subagent_type` for broad searches and large file reads — the sub-agent's window is reclaimed when it exits; the parent only sees the summary.
+- Default long-running shell commands to `run_in_background: true` so the conversation thread doesn't block.
+- Prefer `WebFetch`'s summarized output over reading raw HTML pages.
+- Use `Read`'s `offset` / `limit` parameters when only specific lines are relevant; don't load a 5000-line file to find a function.
 - When the conversation has accumulated large tool results, name it. Don't silently keep stacking.
-
-The host-specific section that follows names the concrete primitives for whichever CLI loaded this file.
 
 ## Tool preferences
 
-When the obvious POSIX tool has a better alternative on PATH, use it.
+For every POSIX default below, use the modern replacement instead.
 
-- `rg` over `grep`
-- `fd` over `find`
-- `sd` over `sed` for find/replace — standard regex, no shell-escaping pitfalls
-- `ast-grep` for structural code search and rewrites — pattern-match against the AST instead of regex; reach for it when a refactor spans many call sites or when regex would be fragile across syntactic variation
-- `yq` for YAML/JSON/TOML/XML queries and in-place edits — preserves formatting, so prefer it over hand-rolled `sed`/`awk` on config files
-- `delta` for human-readable diffs (when invoking `git diff` in a shell)
-- `difft` (difftastic) for syntax-aware diffs when reviewing structural changes — useful when line-diffs hide what actually moved
-- `scc` for fast SLOC/language summaries when sizing up an unfamiliar repo before reading code
-- `watchexec` for ad-hoc file-watcher feedback loops when the tool you're running lacks its own `--watch` mode (one-off scripts, `shellcheck`, `curl` against a local server)
-- `bat` for syntax-highlighted reads at the shell — use the host CLI's file-read primitive, not `bat`, for tool-driven file reads
-- `tidy-viewer` for tabular data inspection; aliased to `tv`.
+| Instead of              | Use                     | Why / when                                          |
+| ----------------------- | ----------------------- | --------------------------------------------------- |
+| `grep`                  | `rg`                    | always                                              |
+| `grep` on code          | `ast-grep`              | code constructs, multi-site refactors, AST patterns |
+| `find`                  | `fd`                    | always                                              |
+| `sed` (find/replace)    | `sd`                    | standard regex, no shell-escaping pitfalls          |
+| `sed`/`awk` on config   | `yq`                    | YAML/JSON/TOML/XML — preserves formatting         |
+| `git diff` (shell)      | `git diff &#124; delta` | human-readable output                               |
+| `git diff` (structural) | `difft`                 | when line-diffs hide what actually moved            |
+
+Reach for these situationally:
+
+- `scc` — SLOC/language summary before reading an unfamiliar repo
+- `watchexec` — file-watcher loop when the tool lacks `--watch`
+- `bat` — syntax-highlighted shell reads (not for tool-driven file reads — use `Read`)
+- `tv` (`tidy-viewer`) — tabular data inspection
 
 ## Markdown conventions
 
@@ -122,12 +124,3 @@ In legacy repos, mirror the existing convention — most use hard-wrap or no-wra
 - Recommendation-then-execute, with brief end-of-turn summaries — this works.
 - Confirm before destructive or shared-state actions even when they're authorized in spirit. Authorization for one push doesn't extend to the next one.
 - For exploratory questions, reply in 2-3 sentences with a recommendation and the main tradeoff before implementing.
-
-## Context discipline
-
-- Prefer the `Agent` tool with a specific `subagent_type` over loading large files or broad searches into the parent context.
-  The sub-agent's window is reclaimed when it exits; the parent only sees the summary.
-- Default long-running shell commands to `run_in_background: true` so the conversation thread doesn't block.
-- Prefer `WebFetch`'s summarized output over reading raw HTML pages.
-- Use `Read`'s `offset` / `limit` parameters when only specific lines are relevant.
-- Don't load a 5000-line file to grep for a function — `grep`, or `ast-grep` for code, does that without filling the conversation.
