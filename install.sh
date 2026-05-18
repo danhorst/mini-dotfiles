@@ -1,11 +1,14 @@
 #!/bin/bash
 
 force=false
-while getopts "f" opt; do
-  case $opt in
-    f) force=true ;;
-    *) echo "Usage: $0 [-f]" >&2; exit 1 ;;
+upgrade=true
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -f) force=true ;;
+    --no-upgrade) upgrade=false ;;
+    *) echo "Usage: $0 [-f] [--no-upgrade]" >&2; exit 1 ;;
   esac
+  shift
 done
 
 safe_symlink() {
@@ -70,6 +73,9 @@ section "Packages"
 echo "Ensuring baseline brew formulas are installed"
 brew update
 HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v
+if [ "$upgrade" = true ]; then
+  brew upgrade
+fi
 
 section "mise"
 
