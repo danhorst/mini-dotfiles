@@ -1,6 +1,44 @@
 {
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "allow": [
+      "Bash(sync-tool-prefs-memory.sh)",
+      "Bash(ast-grep *)",
+      "Bash(bat *)",
+      "Bash(chmod *)",
+      "Bash(difft *)",
+      "Bash(fd *)",
+      "Bash(gh *)",
+      "Bash(git *)",
+      "Bash(launchctl *)",
+      "Bash(mdfnt *)",
+      "Bash(mdfootnote *)",
+      "Bash(mdinline *)",
+      "Bash(mdjoin *)",
+      "Bash(mdref *)",
+      "Bash(mdsidenote *)",
+      "Bash(mdsplit *)",
+      "Bash(mdtable *)",
+      "Bash(mdunwrap *)",
+      "Bash(mdwrap *)",
+      "Bash(mise *)",
+      "Bash(rg *)",
+      "Bash(scc *)",
+      "Bash(sd *)",
+      "Bash(shasum *)",
+      "Bash(shellcheck *)",
+      "Bash(ssh *)",
+      "Bash(ssh-add *)",
+      "Bash(tar *)",
+      "Bash(tv *)",
+      "Bash(watchexec *)",
+      "Bash(xattr *)",
+      "Bash(yq *)",
+      "Read(//private/tmp/**)",
+      "Read(//tmp/**)",
+      "Skill(update-config)",
+      "WebFetch(domain:github.com)"
+    ]
   },
   "hooks": {
     "UserPromptSubmit": [
@@ -8,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/git/danhorst/dotfiles/claude/scripts/sync-tool-prefs-memory.sh"
+            "command": "sync-tool-prefs-memory.sh"
           }
         ]
       }
@@ -21,6 +59,11 @@
             "type": "command",
             "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; if echo \"$f\" | grep -qE '\\.(sh|bash|zsh)$' || head -1 \"$f\" 2>/dev/null | grep -qE '^#!.*\\b(bash|sh|zsh)\\b'; then shellcheck \"$f\"; fi; } 2>/dev/null || true",
             "statusMessage": "Running shellcheck..."
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; echo \"$f\" | grep -qE '\\.claude/settings(\\.local)?\\.json$' || exit 0; tmp=$(mktemp); jq '.permissions.allow |= sort' \"$f\" > \"$tmp\" && mv \"$tmp\" \"$f\"; } 2>/dev/null || true",
+            "statusMessage": "Sorting permissions..."
           }
         ]
       }

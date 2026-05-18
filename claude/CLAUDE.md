@@ -99,7 +99,7 @@ For every POSIX default below, use the modern replacement instead.
 | `find`                  | `fd`                    | always                                              |
 | `sed` (find/replace)    | `sd`                    | standard regex, no shell-escaping pitfalls          |
 | `sed`/`awk` on config   | `yq`                    | YAML/JSON/TOML/XML — preserves formatting         |
-| `git diff` (shell)      | `git diff &#124; delta` | human-readable output                               |
+| `git diff` (shell)      | `git diff`              | delta is configured as the git pager automatically  |
 | `git diff` (structural) | `difft`                 | when line-diffs hide what actually moved            |
 
 Reach for these situationally:

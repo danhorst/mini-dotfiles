@@ -66,6 +66,7 @@ source "$HOME/.zsh_aliases"
 ########################################################################
 
 [ -d "$HOME/.bin" ] && PATH="$HOME/.bin:$PATH"
+[ -d "$HOME/git/danhorst/dotfiles/claude/bin" ] && PATH="$PATH:$HOME/git/danhorst/dotfiles/claude/bin"
 
 ########################################################################
 # Load secrets
