@@ -99,6 +99,7 @@ while IFS= read -r -d '' file; do
   filename="$(basename "$file")"
   safe_symlink "$file" "$HOME/.claude/$filename"
 done < <(find "$dotfiles_directory/claude" -maxdepth 1 -type f -print0)
+safe_symlink "$dotfiles_directory/claude/commands" "$HOME/.claude/commands"
 
 section "Ghostty"
 
