@@ -1,6 +1,37 @@
 {
+  "enabledPlugins": {
+    "swift-lsp@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; if echo \"$f\" | grep -qE '\\.(sh|bash|zsh)$' || head -1 \"$f\" 2>/dev/null | grep -qE '^#!.*\\b(bash|sh|zsh)\\b'; then shellcheck \"$f\"; fi; } 2>/dev/null || true",
+            "statusMessage": "Running shellcheck...",
+            "type": "command"
+          },
+          {
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; echo \"$f\" | grep -qE '\\.claude/settings(\\.local)?\\.json$' || exit 0; tmp=$(mktemp); jq '.permissions.allow |= sort' \"$f\" > \"$tmp\" && mv \"$tmp\" \"$f\"; } 2>/dev/null || true",
+            "statusMessage": "Sorting permissions...",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "sync-tool-prefs-memory.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
-    "defaultMode": "auto",
     "allow": [
       "Bash(sync-tool-prefs-memory.sh)",
       "Bash(ast-grep *)",
@@ -38,41 +69,10 @@
       "Read(//tmp/**)",
       "Skill(update-config)",
       "WebFetch(domain:github.com)"
-    ]
-  },
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sync-tool-prefs-memory.sh"
-          }
-        ]
-      }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; if echo \"$f\" | grep -qE '\\.(sh|bash|zsh)$' || head -1 \"$f\" 2>/dev/null | grep -qE '^#!.*\\b(bash|sh|zsh)\\b'; then shellcheck \"$f\"; fi; } 2>/dev/null || true",
-            "statusMessage": "Running shellcheck..."
-          },
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; echo \"$f\" | grep -qE '\\.claude/settings(\\.local)?\\.json$' || exit 0; tmp=$(mktemp); jq '.permissions.allow |= sort' \"$f\" > \"$tmp\" && mv \"$tmp\" \"$f\"; } 2>/dev/null || true",
-            "statusMessage": "Sorting permissions..."
-          }
-        ]
-      }
-    ]
+    "defaultMode": "auto"
   },
-  "enabledPlugins": {
-    "swift-lsp@claude-plugins-official": true
-  },
-  "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
   "theme": "dark-daltonized"
 }
