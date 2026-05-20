@@ -71,16 +71,6 @@ brew "yq"
 brew "yt-dlp"
 brew "zsh-completions"
 
-######################
-# Workstation Testing
-######################
-
-brew "awscli"
-brew "sshuttle"
-cask "session-manager-plugin"
-
-######################
-
 cask "appcleaner"
 cask "claude-code"
 cask "conductor"
