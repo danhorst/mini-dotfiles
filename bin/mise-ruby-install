@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Install a Ruby version via ruby-build, applying known patches for versions that
+# don't compile cleanly on modern macOS (e.g. the socket extension on Darwin 25+).
+#
+# Falls back to plain `mise install ruby@<version>` for unpatched versions.
+#
+# Usage: mise-ruby-install <version>
+
+set -euo pipefail
+
+version="${1:?Usage: mise-ruby-install <version>}"
+target="$HOME/.local/share/mise/installs/ruby/$version"
+
+# Auto-set OpenSSL dir on macOS if not already in RUBY_CONFIGURE_OPTS
+if [[ "$(uname)" == "Darwin" && -z "${RUBY_CONFIGURE_OPTS:-}" ]]; then
+  openssl_prefix=$(brew --prefix openssl@3 2>/dev/null || true)
+  if [[ -n "$openssl_prefix" ]]; then
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$openssl_prefix"
+  fi
+fi
+
+# Ruby 3.1.6 on Darwin: ext/socket/extconf.rb reads /usr/include/netinet6/in6.h
+# directly from Ruby (not via the C compiler), so SDKROOT/CPPFLAGS don't help.
+# Patch it to resolve the path via xcrun instead.
+if [[ "$version" == "3.1.6" && "$(uname)" == "Darwin" ]]; then
+  echo "==> Applying socket/extconf.rb SDK patch for Ruby $version on Darwin"
+  ruby-build --patch "$version" "$target" <<'PATCH'
+--- a/ext/socket/extconf.rb
++++ b/ext/socket/extconf.rb
+@@ -662,3 +662,5 @@
+     print "fixing apple's netinet6/in6.h ..."; $stdout.flush
+-    in6 = File.read("/usr/include/#{hdr}")
++    sdk = `xcrun --show-sdk-path 2>/dev/null`.chomp
++    in6_path = sdk.empty? ? "/usr/include/#{hdr}" : "#{sdk}/usr/include/#{hdr}"
++    in6 = File.read(in6_path)
+     if in6.gsub!(/\*\(const\s+__uint32_t\s+\*\)\(const\s+void\s+\*\)\(&(\(\w+\))->s6_addr\[(\d+)\]\)/) do
+PATCH
+  exit 0
+fi
+
+exec mise install "ruby@$version"
