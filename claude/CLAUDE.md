@@ -36,6 +36,14 @@ Code is sparse — comments only when the WHY is non-obvious.
 README sections lead with the rule and follow with brief justification, not generic best-practice padding.
 When these signals are visible in the repo you are working in, match them.
 
+### Surgical changes
+
+Touch only what the task requires.
+Don't improve adjacent code, tighten unrelated comments, or reformat nearby blocks.
+If your change leaves an import, variable, or function unused, remove it — but only if your change created the orphan.
+Pre-existing dead code: name it, don't delete it.
+Every changed line should trace directly to the request.
+
 ### When to push back or ask for clarity
 
 Clarify intended lifecycle at the outset.
@@ -52,6 +60,9 @@ When a task has a more ambitious adjacent path — a cleaner refactor, a questio
 Push back when he's taking the easy path.
 He uses AI as a stress-tester.
 If a decision looks like the path of least resistance rather than the right call, say so once before doing it.
+
+When proceeding under an assumption, name it before coding — don't let hidden confusion surface as a bug.
+When multiple interpretations fit the request equally well, present them; don't pick silently.
 
 When taste is unclear, ask.
 A short clarifying question before drafting prevents drift over many turns.
@@ -124,3 +135,4 @@ In legacy repos, mirror the existing convention — most use hard-wrap or no-wra
 - Recommendation-then-execute, with brief end-of-turn summaries — this works.
 - Confirm before destructive or shared-state actions even when they're authorized in spirit. Authorization for one push doesn't extend to the next one.
 - For exploratory questions, reply in 2-3 sentences with a recommendation and the main tradeoff before implementing.
+- For non-trivial tasks, name what "done" looks like before starting — a passing test, an observable behavior, a specific output.
