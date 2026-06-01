@@ -11,6 +11,23 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+safe_default() {
+  local domain="$1" key="$2" type="$3" value="$4"
+  local normalized="$value"
+  if [ "$type" = "-bool" ]; then
+    [ "$value" = "true" ]  && normalized="1"
+    [ "$value" = "false" ] && normalized="0"
+  fi
+  local current
+  current=$(defaults read "$domain" "$key" 2>/dev/null)
+  if [ "$current" = "$normalized" ]; then
+    echo "  Already set: $domain $key"
+  else
+    defaults write "$domain" "$key" "$type" "$value"
+    echo "  Set: $domain $key = $value"
+  fi
+}
+
 safe_symlink() {
   local target="$1"
   local link_name="$2"
