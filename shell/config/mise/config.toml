@@ -1,12 +1,8 @@
 [tools]
 node = "24"
 "npm:playwright" = "latest"
-python = "3"
 ruby = "4"
 uv = "latest"
-
-[env]
-UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
 
 [settings]
 
