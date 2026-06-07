@@ -94,6 +94,22 @@ if [ "$upgrade" = true ]; then
   brew upgrade
 fi
 
+section "Gatekeeper"
+
+echo "Clearing quarantine on casks that trigger Gatekeeper on next launch"
+_dequarantine_bin() {
+  local bin
+  bin=$(command -v "$1" 2>/dev/null) || return
+  if xattr -p com.apple.quarantine "$bin" &>/dev/null; then
+    xattr -d com.apple.quarantine "$bin"
+    echo "  Cleared quarantine: $bin"
+  else
+    echo "  No quarantine set: $bin"
+  fi
+}
+
+_dequarantine_bin claude
+
 section "mise"
 
 echo "Installing mise-managed tools"
