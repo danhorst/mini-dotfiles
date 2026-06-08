@@ -31,9 +31,9 @@
       }
     ]
   },
+  "model": "opus",
   "permissions": {
     "allow": [
-      "Bash(sync-tool-prefs-memory.sh)",
       "Bash(ast-grep *)",
       "Bash(bat *)",
       "Bash(chmod *)",
@@ -60,6 +60,7 @@
       "Bash(shellcheck *)",
       "Bash(ssh *)",
       "Bash(ssh-add *)",
+      "Bash(sync-tool-prefs-memory.sh)",
       "Bash(tar *)",
       "Bash(tv *)",
       "Bash(watchexec *)",
