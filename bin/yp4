@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# yp4 — Download a YouTube video and re-encode to hvc1 for macOS hardware decode
+# Usage: yp4 <url> [output_dir]
+# Override quality via YP4_QUALITY (hevc_videotoolbox 0-100, higher = better)
+
+set -euo pipefail
+
+for cmd in yt-dlp ffmpeg; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "Error: $cmd is not installed. Install with \`brew install $cmd\`"
+    exit 1
+  fi
+done
+
+URL="${1:-}"
+OUTPUT_DIR="${2:-.}"
+QUALITY="${YP4_QUALITY:-60}"
+
+if [[ -z "$URL" ]]; then
+  echo "Usage: $0 <youtube-url> [output_dir]"
+  exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+
+yt-dlp \
+  --output "${WORK}/%(title)s.%(ext)s" \
+  --merge-output-format mp4 \
+  --print-to-file after_move:filepath "${WORK}/path.txt" \
+  "$URL"
+
+SOURCE=$(<"${WORK}/path.txt")
+NAME=$(basename "${SOURCE%.*}")
+OUTPUT="${OUTPUT_DIR}/${NAME}.mp4"
+
+echo "Encoding to hvc1: $NAME"
+ffmpeg -nostdin -i "$SOURCE" \
+  -c:v hevc_videotoolbox \
+  -q:v "$QUALITY" \
+  -tag:v hvc1 \
+  -c:a aac \
+  -b:a 192k \
+  -map_metadata 0 \
+  -movflags +faststart \
+  -y "$OUTPUT"
+
+echo "Done: $OUTPUT"
