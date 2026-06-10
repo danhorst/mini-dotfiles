@@ -52,6 +52,13 @@ function csv {
   column -t -s, "$@" | less -F -S -X -K
 }
 
+function fp {
+  local p
+  p=$(realpath "${1:-.}") || return
+  printf '%s' "$p" | pbcopy
+  echo "$p"
+}
+
 function ds {
   dig "$@" +short
 }
