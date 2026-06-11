@@ -73,6 +73,7 @@ brew "yq"
 brew "yt-dlp"
 brew "zsh-completions"
 
+cask "agentsview"
 cask "appcleaner"
 cask "claude-code"
 cask "conductor"
