@@ -1,24 +1,23 @@
 ---
-name: Tool substitution preferences
-description: Substitution table — rg/ast-grep/fd/sd/yq/delta/difft instead of POSIX defaults; check before every Bash call
+name: Judgment-driven tool choices
+description: Structural diffs (difft) and situational tools (scc/watchexec/bat/tv); the PreToolUse hook covers mechanical substitutions
 metadata:
   type: feedback
 ---
 
-**Rule:** never use the POSIX default when a replacement is listed here.
+**Mechanical substitutions** (grep → rg/ast-grep, find → fd, sed → sd/yq, awk → yq/sd) are enforced at `PreToolUse` by `tool-prefs-check.sh`, with extension lists in `claude/etc/`.
+This memory covers what the hook can't reach.
 
-| Instead of              | Use                     | Why / when                                          |
-| ----------------------- | ----------------------- | --------------------------------------------------- |
-| `grep`                  | `rg`                    | always                                              |
-| `grep` on code          | `ast-grep`              | code constructs, multi-site refactors, AST patterns |
-| `find`                  | `fd`                    | always                                              |
-| `sed` (find/replace)    | `sd`                    | standard regex, no shell-escaping pitfalls          |
-| `sed`/`awk` on config   | `yq`                    | YAML/JSON/TOML/XML — preserves formatting           |
-| `git diff` (shell)      | `git diff &#124; delta` | human-readable output                               |
-| `git diff` (structural) | `difft`                 | when line-diffs hide what actually moved            |
+**`git diff` for structural moves.**
+Use `difft` when a line-diff would hide what actually moved — refactors that reshape lines but preserve semantics.
+`difft <a> <b>` or `GIT_EXTERNAL_DIFF=difft git diff` for a one-off.
+Default `git diff` already pipes through delta (configured as git pager) for human-readable line diffs; that's fine for ordinary changes.
 
-**Why:** POSIX tools are ingrained defaults that cause silent drift from DBH's preferences.
+**Situational tools — reach for these when the situation fits:**
 
-**How to apply:** check this table before writing any Bash call involving grep, find, sed, awk, or git diff.
+- `scc` — SLOC / language summary before reading an unfamiliar repo.
+- `watchexec` — file-watcher loop when the tool itself lacks `--watch`.
+- `bat` — syntax-highlighted shell reads; for tool-driven file reads use the `Read` tool, not `bat`.
+- `tv` (`tidy-viewer`) — tabular data inspection.
 
 See also [[use-ast-grep-for-structural-code-search]], [[md-tools-usage-mdsplit-and-mdtable]].

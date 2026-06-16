@@ -16,4 +16,4 @@ Prefer `ast-grep` over `rg`/`grep` for code searches when:
 **How to apply:** Before reaching for `rg` on a code search, ask whether the target is structural — if yes, use `ast-grep`.
 Reserve `rg` for plain-text searches (log output, comments, string literals, config values).
 
-See also [[tool-substitution-preferences]].
+See also [[judgment-driven-tool-choices]].

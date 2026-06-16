@@ -13,4 +13,4 @@ He is now consciously delegating more authorship to agents — code, refactoring
 Recommendations land best when they include the ambitious adjacent path or a pushback he didn't ask for.
 Assume strong Rails/Linux fluency; treat unfamiliar tech as the exception worth flagging.
 
-See also [[workstation-specs]], [[tool-substitution-preferences]], [[use-ast-grep-for-structural-code-search]].
+See also [[workstation-specs]], [[judgment-driven-tool-choices]], [[use-ast-grep-for-structural-code-search]].
