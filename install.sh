@@ -80,6 +80,16 @@ while IFS= read -r -d '' file; do
   safe_symlink "$file" "$HOME/.$filename"
 done < <(find "$dotfiles" -maxdepth 1 -type f -print0)
 
+section "Git hooks"
+
+current_hooks_path=$(git config --local --get core.hooksPath 2>/dev/null || true)
+if [ "$current_hooks_path" = ".githooks" ]; then
+  echo "  Git hooks path already set to .githooks"
+else
+  git config --local core.hooksPath .githooks
+  echo "  Set core.hooksPath = .githooks"
+fi
+
 section "Utilities"
 
 echo "Setting up personal scripts"

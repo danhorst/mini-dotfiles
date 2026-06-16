@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Block commits that violate the conventions enforced at edit-time by the
+# PostToolUse hooks in claude/settings.json. On failure, print a fix command.
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM)
+[[ ${#staged[@]} -eq 0 ]] && exit 0
+
+fail=0
+
+is_shell_script() {
+  local f="$1"
+  case "$f" in
+    *.sh|*.bash|*.zsh) return 0 ;;
+  esac
+  [[ -f "$f" ]] || return 1
+  head -1 "$f" 2>/dev/null | grep -qE '^#!.*\b(bash|sh|zsh)\b'
+}
+
+for f in "${staged[@]}"; do
+  [[ -f "$f" ]] || continue
+  if is_shell_script "$f"; then
+    shellcheck "$f" || fail=1
+  fi
+done
+
+for f in "${staged[@]}"; do
+  case "$f" in
+    claude/settings.json|claude/settings.local.json) ;;
+    *) continue ;;
+  esac
+  [[ -f "$f" ]] || continue
+  if ! diff -q <(jq '.permissions.allow' "$f") <(jq '.permissions.allow | sort' "$f") > /dev/null; then
+    echo "Pre-commit: $f .permissions.allow is unsorted."
+    echo "  Fix: tmp=\$(mktemp) && jq '.permissions.allow |= sort' $f > \"\$tmp\" && mv \"\$tmp\" $f"
+    fail=1
+  fi
+done
+
+if command -v mdsplit > /dev/null && command -v mdtable > /dev/null; then
+  for f in "${staged[@]}"; do
+    case "$f" in
+      *.md|*.markdown) ;;
+      *) continue ;;
+    esac
+    [[ -f "$f" ]] || continue
+    tmp=$(mktemp)
+    if mdsplit "$f" 2>/dev/null | mdtable 2>/dev/null > "$tmp" && [[ -s "$tmp" ]]; then
+      if ! diff --brief "$tmp" "$f" > /dev/null 2>&1; then
+        echo "Pre-commit: $f would change under mdsplit | mdtable."
+        echo "  Fix: mdsplit -w \"$f\" && mdtable -w \"$f\""
+        fail=1
+      fi
+    fi
+    rm -f "$tmp"
+  done
+fi
+
+exit $fail
