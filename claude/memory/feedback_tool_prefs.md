@@ -5,11 +5,10 @@ metadata:
   type: feedback
 ---
 
-**Mechanical substitutions** (grep → rg/ast-grep, find → fd, sed → sd/yq, awk → yq/sd) are enforced at `PreToolUse` by `tool-prefs-check.sh`, with extension lists in `claude/etc/`.
+**Mechanical substitutions** (grep → rg/ast-grep, find → fd, sed → sd/yq, awk → yq/sd) are hook-enforced — warnings arrive inline when a Bash command uses a POSIX default.
 This memory covers what the hook can't reach.
 
-**`git diff` for structural moves.**
-Use `difft` when a line-diff would hide what actually moved — refactors that reshape lines but preserve semantics.
+**`git diff` for structural moves:** use `difft` when a line-diff would hide what actually moved — refactors that reshape lines but preserve semantics.
 `difft <a> <b>` or `GIT_EXTERNAL_DIFF=difft git diff` for a one-off.
 Default `git diff` already pipes through delta (configured as git pager) for human-readable line diffs; that's fine for ordinary changes.
 

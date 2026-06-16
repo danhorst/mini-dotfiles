@@ -6,12 +6,11 @@ metadata:
   cement: false
 ---
 
-<!-- Templated seed. seed-memory.sh resolves the RAM_GB and ARCH placeholders via envsubst (explicit allowlist) at integration time. cement: false excludes this file from cement-memory.sh — the template is the canonical form; live edits are not promoted back. -->
-
 - RAM: ${RAM_GB}GB total
 - Architecture: ${ARCH}
 
 This is a single-machine setup; the dotfiles repo deploys these seeds only to this workstation.
 
-**Behavioral implication:** memory pressure is the main constraint behind the context-discipline rules in CLAUDE.md.
+**Behavioral implication:** memory pressure is the binding constraint.
+Sub-agents (parent reclaims their window on exit), `run_in_background` for long shell commands, and `Read` with `offset`/`limit` rather than whole-file loads are the levers when context budget tightens.
 See also [[dbh-profile-and-working-dynamics]].

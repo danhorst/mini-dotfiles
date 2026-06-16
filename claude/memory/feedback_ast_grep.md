@@ -11,9 +11,9 @@ Prefer `ast-grep` over `rg`/`grep` for code searches when:
 - Regex would be fragile across syntactic variation (e.g., different argument formatting)
 - A refactor spans multiple call sites
 
-**Why:** DBH's CLAUDE.md explicitly lists this preference and he has noticed it's not being followed in practice.
+**Why:** the PreToolUse hook flags bare `grep` but doesn't choose between `rg` and `ast-grep` for the agent — that's the call this memory informs.
 
-**How to apply:** Before reaching for `rg` on a code search, ask whether the target is structural — if yes, use `ast-grep`.
+**How to apply:** before reaching for `rg` on a code search, ask whether the target is structural — if yes, use `ast-grep`.
 Reserve `rg` for plain-text searches (log output, comments, string literals, config values).
 
 See also [[judgment-driven-tool-choices]].

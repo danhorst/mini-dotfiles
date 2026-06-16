@@ -36,6 +36,10 @@ Live edits stay live until deliberately promoted via `/wrap-it-up`, which triage
 Templated seeds carry `cement: false` in their frontmatter.
 The cement script refuses to overwrite them, so the template stays canonical (currently used only by `reference_workstation.md` to inject host RAM and arch via `envsubst`).
 
+Write seeds from the agent's runtime point of view, not the dotfiles maintainer's tree view.
+After deploy, the live memory lives at `~/.claude/projects/<encoded-cwd>/memory/` with no line of sight to `CLAUDE.md` or the hook scripts — references like `claude/etc/` or `bin/tool-prefs-check.sh` become noise the agent can't act on.
+CLAUDE.md is loaded into the system prompt by name, so referring to it works but rarely adds value; hooks deliver their output directly, so naming the script that ran is redundant.
+
 ## Hooks
 
 - **`PreToolUse` on `Bash`** — `bin/tool-prefs-check.sh` warns when a command's first word is a POSIX default (`grep`, `find`, `sed`, `awk`) that has an established replacement. Context-aware: extension match on positional args, plus `-r` / `--recursive` heuristic for grep. Extension lists live in `etc/`.
