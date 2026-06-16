@@ -15,9 +15,25 @@
             "command": "jq -r '.tool_input.file_path // empty' | { read -r f; [ -z \"$f\" ] && exit 0; echo \"$f\" | grep -qE '\\.claude/settings(\\.local)?\\.json$' || exit 0; tmp=$(mktemp); jq '.permissions.allow |= sort' \"$f\" > \"$tmp\" && mv \"$tmp\" \"$f\"; } 2>/dev/null || true",
             "statusMessage": "Sorting permissions...",
             "type": "command"
+          },
+          {
+            "command": "md-format-check.sh",
+            "statusMessage": "Checking markdown formatting...",
+            "type": "command"
           }
         ],
         "matcher": "Write|Edit"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "tool-prefs-check.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
       }
     ],
     "SessionStart": [
