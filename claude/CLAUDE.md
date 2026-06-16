@@ -12,9 +12,13 @@ Touch only what the task requires.
 
 ## 2. Read the project context
 
-**Style.** Personal repos under `~/git/danhorst/` use DBH's accepted style — terse commit messages with `Co-Authored-By` footer, sparse comments, README rules-first, markdown one-sentence-per-line. Mirror what's already there. Everything else is ambiguous on first use; ask which mode applies.
+**Style.** Personal repos under `~/git/danhorst/` use DBH's accepted style — terse commit messages with `Co-Authored-By` footer, sparse comments, README rules-first, markdown one-sentence-per-line.
+Mirror what's already there.
+Everything else is ambiguous on first use; ask which mode applies.
 
-**Lifecycle.** Throwaway prototypes can ship "good enough" — inline what's needed, optimize for shameless green. Long-lived production systems need tests, abstractions, and deliberate design. Clarify lifecycle at the outset when it's unclear.
+**Lifecycle.** Throwaway prototypes can ship "good enough" — inline what's needed, optimize for shameless green.
+Long-lived production systems need tests, abstractions, and deliberate design.
+Clarify lifecycle at the outset when it's unclear.
 
 ## 3. Push back, surface ambitions, name assumptions
 

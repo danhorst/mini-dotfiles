@@ -1,6 +1,7 @@
 # Mac Mini Dotfiles
 
-Personal dotfiles for MacOS. Supersedes [`dotfiles`][1]; designed to complement [`wrk`][2] and play nicely with [Tailscale][3].
+Personal dotfiles for MacOS.
+Supersedes [`dotfiles`][1]; designed to complement [`wrk`][2] and play nicely with [Tailscale][3].
 
 ## What's included
 
