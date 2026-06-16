@@ -30,5 +30,5 @@ mdsplit "$file_path" 2>/dev/null | mdtable 2>/dev/null > "$tmp" || exit 0
 
 if ! diff --brief "$tmp" "$file_path" > /dev/null 2>&1; then
   echo "Markdown reminder: $(basename "$file_path") would change under mdsplit | mdtable."
-  echo "  Fix: mdsplit \"$file_path\" | mdtable -w \"$file_path\""
+  echo "  Fix: mdsplit \"$file_path\" | mdtable -i \"$file_path\""
 fi

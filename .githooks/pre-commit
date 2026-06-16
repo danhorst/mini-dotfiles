@@ -52,7 +52,7 @@ if command -v mdsplit > /dev/null && command -v mdtable > /dev/null; then
     if mdsplit "$f" 2>/dev/null | mdtable 2>/dev/null > "$tmp" && [[ -s "$tmp" ]]; then
       if ! diff --brief "$tmp" "$f" > /dev/null 2>&1; then
         echo "Pre-commit: $f would change under mdsplit | mdtable."
-        echo "  Fix: mdsplit -w \"$f\" && mdtable -w \"$f\""
+        echo "  Fix: mdsplit \"$f\" | mdtable -i \"$f\""
         fail=1
       fi
     fi
