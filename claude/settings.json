@@ -20,11 +20,11 @@
         "matcher": "Write|Edit"
       }
     ],
-    "UserPromptSubmit": [
+    "SessionStart": [
       {
         "hooks": [
           {
-            "command": "sync-tool-prefs-memory.sh",
+            "command": "seed-memory.sh",
             "type": "command"
           }
         ]
@@ -36,6 +36,7 @@
     "allow": [
       "Bash(ast-grep *)",
       "Bash(bat *)",
+      "Bash(cement-memory.sh *)",
       "Bash(chmod *)",
       "Bash(difft *)",
       "Bash(fd *)",
@@ -60,7 +61,6 @@
       "Bash(shellcheck *)",
       "Bash(ssh *)",
       "Bash(ssh-add *)",
-      "Bash(sync-tool-prefs-memory.sh)",
       "Bash(tar *)",
       "Bash(tv *)",
       "Bash(watchexec *)",
