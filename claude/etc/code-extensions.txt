@@ -1,0 +1,39 @@
+# File extensions where ast-grep adds real value over rg (structural search,
+# AST-aware refactors). Consumed by tool-prefs-check.sh. One extension per
+# line, leading dot omitted, # comments and blank lines ignored.
+
+rb
+py
+js
+jsx
+ts
+tsx
+mjs
+cjs
+go
+rs
+swift
+java
+kt
+scala
+c
+cpp
+cc
+h
+hpp
+sh
+bash
+zsh
+ex
+exs
+erl
+clj
+cljs
+php
+lua
+hs
+ml
+mli
+dart
+vue
+svelte

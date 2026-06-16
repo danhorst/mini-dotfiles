@@ -1,0 +1,9 @@
+# Structured config formats yq handles natively. Consumed by
+# tool-prefs-check.sh. One extension per line, leading dot omitted,
+# # comments and blank lines ignored.
+
+yaml
+yml
+json
+toml
+xml
