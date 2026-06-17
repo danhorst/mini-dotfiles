@@ -131,7 +131,7 @@ _dequarantine_bin claude
 section "Codex"
 
 echo "Linking codex"
-safe_symlink "$(brew --prefix)/bin/codex" "/Applications/Codex.app/Contents/Resources/codex"
+safe_symlink "/Applications/Codex.app/Contents/Resources/codex" "$(brew --prefix)/bin/codex"
 
 section "mise"
 
