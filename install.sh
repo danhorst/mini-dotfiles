@@ -126,7 +126,18 @@ _dequarantine_bin() {
   fi
 }
 
+_dequarantine_app() {
+  local app="$1"
+  if [ -d "$app" ] && xattr -p com.apple.quarantine "$app" &>/dev/null; then
+    xattr -dr com.apple.quarantine "$app"
+    echo "  Cleared quarantine: $app"
+  else
+    echo "  No quarantine set: $app"
+  fi
+}
+
 _dequarantine_bin claude
+_dequarantine_app "/Applications/Codex.app"
 
 section "Codex"
 
