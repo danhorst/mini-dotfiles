@@ -98,10 +98,18 @@ safe_symlink "$dotfiles_directory/bin" "$HOME/.bin"
 section "Packages"
 
 echo "Ensuring baseline brew formulas are installed"
-brew update
-HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v
-if [ "$upgrade" = true ]; then
-  brew upgrade
+_bundle_stamp="${HOME}/.homebrew-bundle-last-run"
+if ! ssh-add -l &>/dev/null; then
+  echo "  Skipping: no SSH keys loaded on agent"
+elif [ "$force" = false ] && [ -f "$_bundle_stamp" ] && (( $(date +%s) - $(stat -f '%m' "$_bundle_stamp") < 86400 )); then
+  echo "  Skipping: brew bundle ran within the last 24h (use -f to force)"
+else
+  brew update
+  HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v
+  if [ "$upgrade" = true ]; then
+    brew upgrade
+  fi
+  touch "$_bundle_stamp"
 fi
 
 section "Gatekeeper"
@@ -119,6 +127,11 @@ _dequarantine_bin() {
 }
 
 _dequarantine_bin claude
+
+section "Codex"
+
+echo "Linking codex"
+safe_symlink "$(brew --prefix)/bin/codex" "/Applications/Codex.app/Contents/Resources/codex"
 
 section "mise"
 
