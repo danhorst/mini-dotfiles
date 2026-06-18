@@ -1,0 +1,22 @@
+# seed prompt — second bake-off run
+
+Paste the block below into a fresh Claude Code session in this repo to kick off a generalization run.
+Do two things first: write the new fixture under `bakeoff/fixtures/<NAME>/` (copy `fixtures/lint/` as the template — `SPEC.md`, tool-level `checklist.md`, `gate.sh`; vary task **size**, hold the language constant), and run `bakeoff/grant.sh on` to enable the implementer permission.
+
+---
+
+We are running a second fixture through the spec-granularity bake-off to test whether the n=1 result generalizes: on fixture one (`lint`), the thesis cell — Opus decomposes a work order, a cheap model implements it — was the cheapest *eligible* path and beat monolithic Opus by ~43% at equal quality.
+See `bakeoff/results/2026-06-17/findings.md`.
+
+The new fixture is `bakeoff/fixtures/<NAME>/` (SPEC.md, checklist.md, gate.sh already written).
+Read `bakeoff/RUNBOOK.md` and `bakeoff/SPEC.md`, then execute all four cells — control, challenger, diagnostic, thesis — exactly per the runbook:
+
+- clean-room each cell, launch the implementer headless, gate with the fixture's `gate.sh`, retry to a cap of 3, voiding any `is_error` infrastructure run;
+- blind-grade each green cell against `checklist.md` with a separate read-only Opus grader, never naming the cell;
+- resolve eligibility (green + 100% compliance + design ≥ 4) and compare dollars-to-green only among eligible cells.
+
+Confirm `bakeoff/grant.sh status` is `present` before launching implementers.
+Write the four-cell table, per-cell cost breakdown, and grades to `bakeoff/results/<date>/findings.md`, pinning model IDs and CLI versions.
+Report whether the thesis win holds at this task size and how cost-to-green moved — this is the n=2 point that begins to map the crossover.
+
+---
