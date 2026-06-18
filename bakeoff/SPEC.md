@@ -57,6 +57,7 @@ Two axes.
 
 - **The deterministic gate** is build plus `go test ./...` plus lint.
   Binary, free, and the definition of *green*.
+  Skipped *or absent* rule-fixture tests fail it: a cell cannot reach green without exercising every rule's fixtures, only by passing them — otherwise a model goes green by writing no rule tests at all, which the first run showed the gate would otherwise wave through.
 - **The graded score** is the blind rubric: MUST-compliance scored binary per checklist item, plus design soundness scored on a fixed scale.
 
 ### Eligibility
@@ -76,6 +77,7 @@ A cell runs to green or to a retry cap.
 - A cell that is not green at the cap is recorded as **non-convergent** — a first-class outcome, and the cheap path's characteristic failure mode.
 - Every round's cost accrues to that cell's dollars-to-green.
 - A non-convergent cell has `dollars_to_green = null` and is ranked below every green cell; its accrued cost is still recorded, so a cheap model's rework is visible rather than hidden.
+- An implementer run that returns `is_error` for an infrastructure reason — a session or usage limit, a crash — is **void**: it is discarded and rerun from clean, never counted as a retry or as non-convergence. Infra failure is not model failure, and the first run showed a session-limit interruption mid-build will otherwise corrupt the impl and the cost.
 
 ## Pinned decisions
 
