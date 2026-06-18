@@ -1,0 +1,5 @@
+The deterministic gate FAILED. Its full output:
+
+[ runtime: append the gate output here ]
+
+Fix the implementation so that the project builds, all tests pass with NO skipped tests, and the formatter and linter report no issues. Address the specific failures above. Work autonomously to completion; do not ask questions.

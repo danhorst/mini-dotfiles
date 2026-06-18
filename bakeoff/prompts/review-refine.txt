@@ -1,0 +1,14 @@
+You are adversarially reviewing a DECOMPOSED WORK ORDER derived from a high-level SPEC, before it is handed to a junior implementer who will follow it literally and exercise no judgment. Find every gap, ambiguity, contradiction, or missing requirement that would let the junior produce a wrong, incomplete, or untestable implementation. Then output a REFINED, corrected work order that closes them.
+
+Check especially:
+- Does every named component have a fully specified mechanism — how it is loaded, wired, and applied at runtime — not merely named? (A config file that is described but never read is a defect.)
+- Is every behavior the SPEC states in prose turned into a concrete, testable task, including any per-command output contract and exit-code semantics?
+- Are the test obligations complete and fixture-driven for every component, so that "tests pass" cannot be satisfied with zero coverage?
+- Are there tasks the junior cannot perform in a clean checkout with no surrounding repository? If so, mark them clearly OPTIONAL / skip-in-isolation so their absence is not mistaken for a defect.
+
+Output ONLY the refined work order — the complete improved document — and nothing else.
+
+===== HIGH-LEVEL SPEC =====
+[ runtime: append the fixture's SPEC.md ]
+===== DRAFT WORK ORDER =====
+[ runtime: append the drafted work order ]

@@ -1,0 +1,7 @@
+You are implementing a software project by following a DECOMPOSED WORK ORDER literally. The file WORKORDER.md in your current directory is a complete, self-contained implementation work order. Read it in full and implement exactly what it specifies — every task marked [CORE], and every test obligation.
+
+Tasks marked [INTEGRATION — skip-in-isolation] cannot be done in this bare checkout with no surrounding repository; follow the work order's own instructions for them (skip, leave placeholders, note in your summary). Their absence is not a defect.
+
+The implementation is done when the project builds, all tests pass with NO skipped tests, and the formatter and linter report no issues, AND every [CORE] task and test obligation in the work order is satisfied.
+
+Work autonomously to completion. Do not ask questions.

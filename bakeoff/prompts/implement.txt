@@ -1,0 +1,9 @@
+You are implementing a software project from a specification, from scratch. The file SPEC.md in your current directory is the complete specification. Read it in full, then implement it.
+
+Requirements:
+- Implement everything the spec describes, following its stated file layout and component structure.
+- Initialize the project (module/package init, dependencies) as the spec's stack requires.
+- Write the tests the spec's testing section requires, including fixture-driven tests for every component the spec says to test.
+- The implementation is done when the project builds, all tests pass with NO skipped tests, and the formatter and linter report no issues.
+
+Work autonomously to completion. Do not ask questions.

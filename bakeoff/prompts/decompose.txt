@@ -1,0 +1,16 @@
+You are a senior engineer writing a DECOMPOSED IMPLEMENTATION WORK ORDER from a high-level spec, for a junior implementer who will follow it literally and make no design judgments of their own. The high-level SPEC follows at the end.
+
+Produce a complete, self-contained work order in Markdown that the junior can implement without consulting anything else. It MUST include:
+- The exact file and package layout: every file to create and what lives in it.
+- For each component, the concrete functions and types with their signatures and responsibilities.
+- Every behavior the spec states in prose, restated as an explicit, checkable task — what each command prints, exit-code semantics, and any data-handling decisions the spec pins. Leave nothing stated only implicitly.
+- Each named component fully specified as a mechanism, not just named: state exactly how it is loaded, wired, and applied at runtime.
+- Per-component test obligations: which tests to write and what each asserts, including fixture-driven tests for every component.
+- A definition-of-done the implementer can self-check against.
+
+Be exhaustive and concrete; prefer enumerated tasks over prose. The implementer should need zero judgment calls. Output ONLY the work order, nothing else.
+
+Keep the prompt generic: do NOT inject specific fixes the spec failed to require — a faithful decomposition surfaces them on its own. That is the test.
+
+===== HIGH-LEVEL SPEC =====
+[ runtime: append the fixture's SPEC.md below this line ]
