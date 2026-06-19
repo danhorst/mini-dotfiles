@@ -2,3 +2,5 @@
 shell/config
 !shell/config/mise/
 *.swp
+
+.claude/settings.local.json
