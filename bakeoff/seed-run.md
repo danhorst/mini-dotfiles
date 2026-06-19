@@ -2,6 +2,7 @@
 
 Paste the block below into a fresh Claude Code session in this repo to kick off a generalization run.
 Do two things first: write the new fixture under `bakeoff/fixtures/<NAME>/` (copy `fixtures/lint/` as the template — `SPEC.md`, tool-level `checklist.md`, `gate.sh`; vary task **size**, hold the language constant), and run `bakeoff/grant.sh on` to enable the implementer permission.
+When copying `gate.sh`, adapt its "rule fixtures exercised" check: it hardcodes lint's component names (`shellcheck settings-sort md-shape`), so on a different fixture it must list that fixture's own components or it always fails; the build/vet/fmt/test/no-skip scaffolding copies unchanged.
 
 ---
 
