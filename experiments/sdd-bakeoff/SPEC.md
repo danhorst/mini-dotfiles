@@ -112,11 +112,11 @@ A spec-gap finding does not edit a fixture in place; it cuts a new revision, and
 ## Layout
 
 ```
-bakeoff/SPEC.md                 this doc
-bakeoff/rubric.md               the blind grader's fixed rubric
-bakeoff/fixtures/<name>/        starting artifact, gate command, normative checklist
-bakeoff/run.sh                  drives a cell to green or retry-cap, emits cost + grade
-bakeoff/results/<date>/         per-cell raw cost and grade, plus a rolled-up table
+experiments/sdd-bakeoff/SPEC.md                 this doc
+experiments/sdd-bakeoff/rubric.md               the blind grader's fixed rubric
+experiments/sdd-bakeoff/fixtures/<name>/        starting artifact, gate command, normative checklist
+experiments/sdd-bakeoff/run.sh                  drives a cell to green or retry-cap, emits cost + grade
+experiments/sdd-bakeoff/results/<date>/         per-cell raw cost and grade, plus a rolled-up table
 ```
 
 The harness starts as a runbook and a thin driver script, not a framework.

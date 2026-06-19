@@ -9,6 +9,6 @@ Produce EXACTLY what the RUBRIC's Output section requires: a per-item compliance
 ================= CHECKLIST (score compliance against THESE) =================
 [ runtime: append the fixture's checklist.md ]
 ================= RUBRIC =================
-[ runtime: append bakeoff/rubric.md ]
+[ runtime: append experiments/sdd-bakeoff/rubric.md ]
 ================= IMPLEMENTATION SOURCE =================
 [ runtime: append concatenated source files + a file tree ]

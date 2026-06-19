@@ -52,6 +52,7 @@ Pass `-f` to force re-running steps that would otherwise be skipped.
 | `caddy/`        | Sudoers file for `caddy`                                                       |
 | `unbound/`      | Local DNS config for `.test` domain                                            |
 | `lima/`         | Lima VM config and setup scripts                                               |
+| `experiments/`  | Self-contained research rigs (e.g. `sdd-bakeoff`); not deployed config         |
 | `Brewfile`      | Homebrew bundle manifest                                                       |
 
 [1]: https://github.com/danhorst/dotfiles

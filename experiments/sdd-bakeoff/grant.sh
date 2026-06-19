@@ -5,9 +5,9 @@
 # bypassPermissions, by design. The grant is temporary: run `off` when the run
 # finishes, and do NOT commit the settings change (the file is tracked here).
 #
-#   bakeoff/grant.sh on      # add the allow rule before a run
-#   bakeoff/grant.sh off     # remove it after
-#   bakeoff/grant.sh status  # report whether it is present
+#   experiments/sdd-bakeoff/grant.sh on      # add the allow rule before a run
+#   experiments/sdd-bakeoff/grant.sh off     # remove it after
+#   experiments/sdd-bakeoff/grant.sh status  # report whether it is present
 set -euo pipefail
 
 rule='Bash(claude -p * --permission-mode bypassPermissions*)'

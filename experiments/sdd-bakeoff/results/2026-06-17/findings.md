@@ -4,7 +4,7 @@ First run of the spec-granularity bake-off. n=1: directional, not a verdict.
 
 ## Method
 
-One fixture (`bakeoff/fixtures/lint/`): the high-level `SPEC.md`, a deterministic `gate.sh` (build, vet, gofmt, `go test` with no skips), and a tool-level `checklist.md` of nine MUST items.
+One fixture (`experiments/sdd-bakeoff/fixtures/lint/`): the high-level `SPEC.md`, a deterministic `gate.sh` (build, vet, gofmt, `go test` with no skips), and a tool-level `checklist.md` of nine MUST items.
 
 Four cells, each an isolated clean-room implementation taken to green (or a three-retry cap):
 
@@ -55,4 +55,4 @@ The implement and spec-compliance skills now have an evidence-based shape: decom
 
 Before trusting the magnitude, firm up the evidence: this is n=1, one run per cell, no variance repeats.
 A second fixture of a different size would test whether the win generalises and begin to locate the crossover by task size and parallelism.
-The hand-run rig should also be codified into `bakeoff/run.sh` carrying both upgrades above.
+The hand-run rig should also be codified into `experiments/sdd-bakeoff/run.sh` carrying both upgrades above.
