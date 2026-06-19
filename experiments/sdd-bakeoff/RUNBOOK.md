@@ -103,6 +103,22 @@ python3 -c "import json;open('$W/WORKORDER.md','w').write(json.load(open('$W/fin
 Then **implement the work order** with Haiku (clean room holds only `WORKORDER.md`, not `SPEC.md`), using `$R/experiments/sdd-bakeoff/prompts/implement-workorder.txt`, then gate + retry as above.
 Thesis cost-to-green = draft + review + impl + retries.
 
+## Implementer sweep (upper-bound fixtures)
+
+For a fixture meant to find where the spec-to-implementer handoff *breaks*, sweep the thesis implementer instead of fixing it at Haiku.
+Decompose and review **once** (the work order is shared), then implement that same `WORKORDER.md` with each tier in its own clean room — `thesis-haiku`, `thesis-sonnet`, `thesis-opus` — gating, retrying, and grading each independently:
+
+```
+for M in haiku sonnet opus; do
+  W=/tmp/sdd-bakeoff/thesis-$M; rm -rf "$W"; mkdir -p "$W"; cp "$TH/WORKORDER.md" "$W/WORKORDER.md"
+  cd "$W" && claude -p --model $M --output-format json --permission-mode bypassPermissions \
+    < "$R/experiments/sdd-bakeoff/prompts/implement-workorder.txt" > "$W/run1.json" 2> "$W/run1.err"
+done
+```
+
+Each swept variant's cost-to-green = the shared draft + review + that tier's impl + its retries.
+Report convergence and eligibility per tier: the upper bound is the cheapest tier that still reaches green at 100% compliance and design ≥ 4, and a tier that hits the retry cap is non-convergent (the handoff has broken for that capability).
+
 ## Blind grade (every green cell)
 
 Assemble the grader input from the grade prompt plus the fixture's `SPEC.md`, `checklist.md`, `rubric.md`, and the concatenated source; run a separate Opus grader, read-only, blind to the cell:
