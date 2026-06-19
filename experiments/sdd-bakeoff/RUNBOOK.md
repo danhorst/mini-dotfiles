@@ -107,22 +107,28 @@ Thesis cost-to-green = draft + review + impl + retries.
 
 Assemble the grader input from the grade prompt plus the fixture's `SPEC.md`, `checklist.md`, `rubric.md`, and the concatenated source; run a separate Opus grader, read-only, blind to the cell:
 
+The grader must see only produced source.
+Never grade the working clean room: it holds the seed `SPEC.md` or `WORKORDER.md` and the run JSON and gate files, any of which unblinds the grader — the thesis room's `WORKORDER.md` is the plainest leak.
+Copy the produced source into a fresh tree and grade that.
+
 ```
-IN="$W/grade-input.txt"
+G="/tmp/sdd-bakeoff/grade/<cell>"; rm -rf "$G"; mkdir -p "$G"
+for p in cmd testdata go.mod go.sum install.sh .gitignore; do cp -R "$W/$p" "$G/" 2>/dev/null; done
+IN="/tmp/sdd-bakeoff/grade/<cell>-input.txt"
 { cat "$R/experiments/sdd-bakeoff/prompts/grade.txt"; cat "$F/SPEC.md";
   echo '================= CHECKLIST ================='; cat "$F/checklist.md";
   echo '================= RUBRIC ================='; cat "$R/experiments/sdd-bakeoff/rubric.md";
   echo '================= IMPLEMENTATION SOURCE ================='
-  while IFS= read -r f; do echo "----- ${f#"$W"/} -----"; cat "$f"; echo; done \
-    < <(find "$W" -type f \( -name '*.go' -o -name '*.toml' \) | sort)
-  echo '----- file tree -----'; (cd "$W" && find . -type f); } > "$IN"
-cd "$W" && claude -p --model opus --output-format json --allowedTools "Read Glob Grep" \
-  < "$IN" > "$W/grade.json"
-python3 -c "import json;d=json.load(open('$W/grade.json'));print(d['total_cost_usd']);print(d['result'])"
+  while IFS= read -r f; do echo "----- ${f#"$G"/} -----"; cat "$f"; echo; done \
+    < <(find "$G" -type f \( -name '*.go' -o -name '*.toml' \) | sort)
+  echo '----- file tree -----'; (cd "$G" && find . -type f | sort); } > "$IN"
+cd "$G" && claude -p --model opus --output-format json --allowedTools "Read Glob Grep" \
+  < "$IN" > "$G/grade.json"
+python3 -c "import json;d=json.load(open('$G/grade.json'));print(d['total_cost_usd']);print(d['result'])"
 ```
 
-Adapt the source `find` filter to the fixture's stack.
-Keep the grader blind: never name the cell or model in its input.
+Adapt the copied paths and the source `find` filter to the fixture's stack.
+Before launching, grep the assembled input for leak terms — work order, junior, decompose, the model and cell names — since source comments can unblind even when filenames do not.
 
 ## Eligibility and reporting
 

@@ -47,7 +47,7 @@ Separate from both scores, the grader names anything the *spec* failed to requir
 
 - This grades the spec, not the cell.
 - It is the signal that the starting artifact was too vague for its altitude — the challenger cell's characteristic risk.
-- A gap found here feeds back into the fixture, not the cell's score.
+- A gap found here feeds back into the fixture, not the cell's score: a load-bearing gap is promoted to a checklist MUST and a fixture that exercises it in the next revision, so the eligibility bar scores it instead of waving it through.
 
 ## Output
 

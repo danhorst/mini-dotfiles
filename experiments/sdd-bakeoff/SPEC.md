@@ -108,6 +108,7 @@ Further fixtures vary size and parallelism — the two axes expected to govern t
 
 Fixtures are versioned immutably.
 A spec-gap finding does not edit a fixture in place; it cuts a new revision, and results stay bound to the revision they ran against, so the checklist never moves under a comparison.
+A revision is a new sibling directory with an `-rN` suffix (`fixtures/json-sort-r2/`); the original keeps its unsuffixed name and is never moved or edited, so its `results/` bindings stay valid.
 
 ## Layout
 

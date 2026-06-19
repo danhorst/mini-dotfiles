@@ -27,6 +27,7 @@ Their absence here is a scope signal about where SDD-with-a-gate is the right to
 | `lint`      | medium (anchor) | done                                                                                                                                                            | per-rule fixtures                | `results/2026-06-17/`                                                                                   |
 
 The upper bound is a surface, not a line, so `lint+` runs the thesis arm across implementer tiers (Haiku → Sonnet → Opus) to find where the spec-to-implementer handoff stops converging.
+When authored, `lint+`'s checklist should promote latent-correctness properties (byte-stability and the like) to MUST items from the start, per the spec-gap→checklist discipline `json-sort` surfaced — otherwise the bar cannot credit what decomposition adds.
 
 ## Rejected
 
