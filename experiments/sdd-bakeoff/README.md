@@ -8,7 +8,7 @@ Start here, then read `SPEC.md` for the rig's design and `RUNBOOK.md` for how to
 
 Spec-driven development (SDD) is increasingly promoted as the default way to work with coding agents.
 It has real merit, but it is not the only productive way to work, and its ceremony is not free.
-This rig stress-tests the claim empirically: it finds the band of task complexity where SDD pays, rather than asserting that it always does.
+This rig stress-tests the claim empirically: it finds the band of task complexity where SDD pays.
 
 Two deliverables come out of it:
 
