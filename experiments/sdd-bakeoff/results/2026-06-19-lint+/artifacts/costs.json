@@ -1,0 +1,39 @@
+{
+  "shared": {
+    "decompose": 0.4306,
+    "review": 0.6739
+  },
+  "control": {
+    "run1": 3.7369,
+    "run2": 0.7872
+  },
+  "challenger": {
+    "run1": 2.5153,
+    "run2": 0.6465
+  },
+  "diagnostic": {
+    "run1": 1.1485,
+    "run2": 0.2787,
+    "run3": 0.2981
+  },
+  "thesis-haiku": {
+    "run1": 1.3489,
+    "run2": 0.7133
+  },
+  "thesis-sonnet": {
+    "run1": 2.7247,
+    "run2": 1.2422
+  },
+  "thesis-opus": {
+    "run1": 3.0173,
+    "run2": 1.0645
+  },
+  "grades": {
+    "control": 0.2958,
+    "challenger": 0.3152,
+    "diagnostic": 0.3858,
+    "thesis-haiku": 0.3966,
+    "thesis-sonnet": 0.3773,
+    "thesis-opus": 0.3784
+  }
+}

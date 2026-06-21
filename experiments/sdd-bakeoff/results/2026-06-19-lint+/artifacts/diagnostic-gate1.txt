@@ -1,0 +1,33 @@
+=== go build ./... ===
+go: build output "lint" already exists and is a directory
+>>> FAILED: go build ./...
+=== go vet ./... ===
+=== gofmt -l . ===
+>>> FAILED gofmt:
+lint/testdata/gofmt/bad/main.go
+=== go test ./... -v (skips fail the gate) ===
+--- PASS: TestCacheColdKeyRunsCheck (0.00s)
+--- PASS: TestCacheWarmKeySkipsCheck (0.00s)
+--- PASS: TestCacheInvalidatesOnContentChange (0.00s)
+--- PASS: TestCacheIncludesRuleIdentity (0.00s)
+--- PASS: TestClassifyFileByExtension (0.00s)
+--- PASS: TestClassifyFileByShebang (0.00s)
+--- PASS: TestConfigBaseOnly (0.00s)
+--- PASS: TestConfigInheritance (0.00s)
+--- PASS: TestIsRuleActiveDefault (0.00s)
+--- PASS: TestIsRuleActiveDisabled (0.00s)
+--- PASS: TestRuleFixturesShellcheck (0.07s)
+--- PASS: TestRuleFixturesGofmt (0.02s)
+--- PASS: TestRuleFixturesJsonFmt (0.02s)
+--- PASS: TestRuleFixturesSettingsSort (0.02s)
+--- PASS: TestRuleFixturesMdShape (0.01s)
+--- PASS: TestSchedulerDeterministicOutput (0.01s)
+--- PASS: TestSchedulerResultsSorted (0.00s)
+--- PASS: TestSelectRulesByExtension (0.00s)
+--- PASS: TestSelectRulesByShebang (0.00s)
+--- PASS: TestSelectRulesByPath (0.00s)
+--- PASS: TestSelectRulesByGlob (0.00s)
+--- PASS: TestSelectRulesNoMatch (0.00s)
+ok  	lint+/cmd/lint	0.358s
+=== rule fixtures exercised ===
+GATE: RED
