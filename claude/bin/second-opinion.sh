@@ -71,11 +71,17 @@ EOF
 )"
 fi
 
-# Run Codex read-only and ephemeral. Returns its full transcript on stdout+stderr.
+# Codex streams its answer to stderr as it generates, then prints the final
+# message to stdout. Keep the streams apart: stdout is the clean findings,
+# stderr is progress chrome plus any auth error we need to detect. Merging them
+# would duplicate every finding into the caller's context.
+err_file="$(mktemp)"
+trap 'rm -f "$err_file"' EXIT
+
 attempt() {
   local -a args=(exec --sandbox read-only --skip-git-repo-check --ephemeral)
   [[ -n "$1" ]] && args+=(-m "$1")
-  material | codex "${args[@]}" "$review_prompt" 2>&1
+  material | codex "${args[@]}" "$review_prompt" 2>"$err_file"
 }
 
 if out="$(attempt "$model")"; then
@@ -84,7 +90,7 @@ if out="$(attempt "$model")"; then
 fi
 
 # A forced model can be silently unavailable under ChatGPT-account auth. Fall back.
-if [[ -n "$model" ]] && grep -q "not supported when using Codex with a ChatGPT account" <<<"$out"; then
+if [[ -n "$model" ]] && grep -q "not supported when using Codex with a ChatGPT account" "$err_file"; then
   echo "second-opinion: model '$model' unavailable on this Codex auth; retrying on default" >&2
   if out="$(attempt "")"; then
     printf '%s\n' "$out"
@@ -92,5 +98,5 @@ if [[ -n "$model" ]] && grep -q "not supported when using Codex with a ChatGPT a
   fi
 fi
 
-printf '%s\n' "$out" >&2
+cat "$err_file" >&2
 exit 1
