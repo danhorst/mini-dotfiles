@@ -138,6 +138,7 @@ _dequarantine_app() {
 
 _dequarantine_bin claude
 _dequarantine_app "/Applications/Codex.app"
+_dequarantine_app "/Applications/QuickLook Video.app"
 
 section "Codex"
 
