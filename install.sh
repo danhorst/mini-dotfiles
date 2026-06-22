@@ -1,12 +1,27 @@
 #!/bin/bash
 
-force=false
+brew_force=false
+network_force=false
 upgrade=true
+
+print_help() {
+  cat <<EOF
+Usage: $0 [-b] [-n] [--no-upgrade] [-h]
+
+  -b, --brew       Update Homebrew and install from Brewfile (bypasses 24h cache)
+  -n, --network    Reset Unbound, Caddy, and pf network configuration
+      --no-upgrade  Skip brew upgrade after bundle
+  -h, --help       Show this help message
+EOF
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -f) force=true ;;
+    -b|--brew)    brew_force=true ;;
+    -n|--network) network_force=true ;;
     --no-upgrade) upgrade=false ;;
-    *) echo "Usage: $0 [-f] [--no-upgrade]" >&2; exit 1 ;;
+    -h|--help)    print_help; exit 0 ;;
+    *) echo "Usage: $0 [-b] [-n] [--no-upgrade] [-h]" >&2; exit 1 ;;
   esac
   shift
 done
@@ -99,10 +114,14 @@ section "Packages"
 
 echo "Ensuring baseline brew formulas are installed"
 _bundle_stamp="${HOME}/.homebrew-bundle-last-run"
+if ! git diff --quiet HEAD -- Brewfile 2>/dev/null; then
+  echo "  Brewfile has uncommitted changes; forcing bundle"
+  brew_force=true
+fi
 if ! ssh-add -l &>/dev/null; then
   echo "  Skipping: no SSH keys loaded on agent"
-elif [ "$force" = false ] && [ -f "$_bundle_stamp" ] && (( $(date +%s) - $(stat -f '%m' "$_bundle_stamp") < 86400 )); then
-  echo "  Skipping: brew bundle ran within the last 24h (use -f to force)"
+elif [ "$brew_force" = false ] && [ -f "$_bundle_stamp" ] && (( $(date +%s) - $(stat -f '%m' "$_bundle_stamp") < 86400 )); then
+  echo "  Skipping: brew bundle ran within the last 24h (use -b to force)"
 else
   brew update
   HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v
@@ -248,7 +267,7 @@ UNBOUND_LOCAL="$UNBOUND_PREFIX/local-dev.conf"
 
 unbound_changed=false
 
-if [ "$force" = true ] || [ "$(readlink "$UNBOUND_LOCAL")" != "$dotfiles_directory/unbound/local-dev.conf" ]; then
+if [ "$network_force" = true ] || [ "$(readlink "$UNBOUND_LOCAL")" != "$dotfiles_directory/unbound/local-dev.conf" ]; then
   echo "Symlinking Unbound local zone config"
   safe_symlink "$dotfiles_directory/unbound/local-dev.conf" "$UNBOUND_LOCAL"
   unbound_changed=true
@@ -262,7 +281,7 @@ if ! grep -q "local-dev.conf" "$UNBOUND_CONF"; then
   unbound_changed=true
 fi
 
-if [ "$force" = true ] || [ ! -f "/etc/resolver/test" ]; then
+if [ "$network_force" = true ] || [ ! -f "/etc/resolver/test" ]; then
   echo "Creating /etc/resolver/test"
   sudo mkdir -p /etc/resolver
   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/test'
@@ -285,7 +304,7 @@ CADDY_PLIST_DEST="/Library/LaunchDaemons/com.danhorst.caddy.plist"
 CADDY_SUDOERS_SRC="$dotfiles_directory/caddy/caddy.sudoers"
 CADDY_SUDOERS_DEST="/etc/sudoers.d/caddy"
 
-if [ -f "$CADDY_BINARY" ] && [ "$force" = false ]; then
+if [ -f "$CADDY_BINARY" ] && [ "$network_force" = false ]; then
   echo "Caddy binary already installed at $CADDY_BINARY"
 else
   echo "Installing xcaddy"
@@ -303,7 +322,7 @@ caddy_conf_ok=true
 [ ! -d "$CADDY_CONF_DIR/sites" ] && caddy_conf_ok=false
 [ "$(stat -f '%Su:%Sg' "$CADDY_CONF_DIR" 2>/dev/null)" != "root:admin" ] && caddy_conf_ok=false
 [ "$(readlink "$CADDY_CONF_DIR/Caddyfile" 2>/dev/null)" != "$dotfiles_directory/caddy/Caddyfile" ] && caddy_conf_ok=false
-if [ "$force" = true ] || [ "$caddy_conf_ok" = false ]; then
+if [ "$network_force" = true ] || [ "$caddy_conf_ok" = false ]; then
   sudo mkdir -p "$CADDY_CONF_DIR/sites"
   sudo chown root:admin "$CADDY_CONF_DIR"
   sudo chown root:admin "$CADDY_CONF_DIR/sites"
@@ -315,14 +334,14 @@ else
 fi
 
 echo "Setting up Caddy data directory"
-if [ "$force" = true ] || [ ! -d /usr/local/share/caddy ] || [ "$(stat -f '%Su:%Sg' /usr/local/share/caddy 2>/dev/null)" != "root:wheel" ]; then
+if [ "$network_force" = true ] || [ ! -d /usr/local/share/caddy ] || [ "$(stat -f '%Su:%Sg' /usr/local/share/caddy 2>/dev/null)" != "root:wheel" ]; then
   sudo mkdir -p /usr/local/share/caddy
   sudo chown root:wheel /usr/local/share/caddy
 else
   echo "Caddy data directory already configured"
 fi
 
-if [ -f "$CADDY_SUDOERS_DEST" ] && [ "$force" = false ]; then
+if [ -f "$CADDY_SUDOERS_DEST" ] && [ "$network_force" = false ]; then
   echo "Caddy sudoers file already installed"
 else
   echo "Validating caddy sudoers file"
@@ -332,7 +351,7 @@ else
   echo "Caddy sudoers file installed"
 fi
 
-if [ -f "$CADDY_PLIST_DEST" ] && [ "$force" = false ]; then
+if [ -f "$CADDY_PLIST_DEST" ] && [ "$network_force" = false ]; then
   echo "Caddy LaunchDaemon already installed"
 else
   echo "Installing Caddy LaunchDaemon"
@@ -352,7 +371,7 @@ PF_PLIST_SRC="$dotfiles_directory/caddy/com.danhorst.pf.plist"
 PF_PLIST_DEST="/Library/LaunchDaemons/com.danhorst.pf.plist"
 
 echo "Installing pf anchor"
-if [ "$force" = true ] || ! cmp -s "$PF_ANCHOR_SRC" "$PF_ANCHOR_DEST" 2>/dev/null; then
+if [ "$network_force" = true ] || ! cmp -s "$PF_ANCHOR_SRC" "$PF_ANCHOR_DEST" 2>/dev/null; then
   sudo cp "$PF_ANCHOR_SRC" "$PF_ANCHOR_DEST"
   sudo pfctl -a com.apple/caddy -f "$PF_ANCHOR_DEST" 2>/dev/null || true
   sudo pfctl -e 2>/dev/null || true
@@ -360,7 +379,7 @@ else
   echo "pf anchor already up to date"
 fi
 
-if [ -f "$PF_PLIST_DEST" ] && [ "$force" = false ]; then
+if [ -f "$PF_PLIST_DEST" ] && [ "$network_force" = false ]; then
   echo "pf LaunchDaemon already installed"
 else
   echo "Installing pf LaunchDaemon"
