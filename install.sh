@@ -156,8 +156,21 @@ _dequarantine_app() {
 }
 
 _dequarantine_bin claude
+_dequarantine_app "/Applications/AgentsView.app"
+_dequarantine_app "/Applications/cmux.app"
 _dequarantine_app "/Applications/Codex.app"
+_dequarantine_app "/Applications/Conductor.app"
+_dequarantine_app "/Applications/GitHub Desktop.app"
+_dequarantine_app "/Applications/Google Chrome.app"
+_dequarantine_app "/Applications/HandBrake.app"
+_dequarantine_app "/Applications/Ice.app"
+_dequarantine_app "/Applications/ImageOptim.app"
+_dequarantine_app "/Applications/Inkscape.app"
+_dequarantine_app "/Applications/MonitorControl.app"
+_dequarantine_app "/Applications/QLMarkdown.app"
 _dequarantine_app "/Applications/QuickLook Video.app"
+_dequarantine_app "/Applications/Signal.app"
+_dequarantine_app "/Applications/Visual Studio Code.app"
 
 section "Codex"
 
