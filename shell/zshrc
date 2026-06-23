@@ -25,6 +25,12 @@ fi
 # Homebrew setup
 ########################################################################
 
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
 if type brew &>/dev/null
 then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
@@ -32,8 +38,6 @@ then
   autoload -Uz compinit
   compinit
 fi
-
-PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 
 ########################################################################
 # Editor setup
@@ -85,7 +89,7 @@ source "$HOME/.zsh_aliases"
 ########################################################################
 
 [ -d "$HOME/.cargo/bin" ] && PATH="$PATH:$HOME/.cargo/bin"
-[ -d "/opt/homebrew/opt/rustup/bin" ] && PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+[ -d "$HOMEBREW_PREFIX/opt/rustup/bin" ] && PATH="$HOMEBREW_PREFIX/opt/rustup/bin:$PATH"
 
 ########################################################################
 # Golang
