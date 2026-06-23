@@ -177,6 +177,13 @@ section "Codex"
 echo "Linking codex"
 safe_symlink "/Applications/Codex.app/Contents/Resources/codex" "$(brew --prefix)/bin/codex"
 
+if command -v rtk &>/dev/null && [ -d "/Applications/Codex.app" ]; then
+  echo "Bootstrapping rtk for Codex"
+  rtk init --codex --global
+else
+  echo "Skipping rtk bootstrap for Codex (rtk or Codex.app not found)"
+fi
+
 section "mise"
 
 echo "Installing mise-managed tools"
@@ -206,6 +213,13 @@ while IFS= read -r -d '' file; do
   safe_symlink "$file" "$HOME/.claude/$filename"
 done < <(find "$dotfiles_directory/claude" -maxdepth 1 -type f -print0)
 safe_symlink "$dotfiles_directory/claude/commands" "$HOME/.claude/commands"
+
+if command -v rtk &>/dev/null && command -v claude &>/dev/null; then
+  echo "Bootstrapping rtk for Claude Code"
+  rtk init --global --auto-patch
+else
+  echo "Skipping rtk bootstrap for Claude Code (rtk or claude not found)"
+fi
 
 section "Ghostty"
 
