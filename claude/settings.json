@@ -1,4 +1,5 @@
 {
+  "effortLevel": "high",
   "enabledPlugins": {
     "swift-lsp@claude-plugins-official": true
   },
@@ -34,6 +35,15 @@
           }
         ],
         "matcher": "Bash"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -47,7 +57,7 @@
       }
     ]
   },
-  "model": "opus",
+  "model": "sonnet",
   "permissions": {
     "allow": [
       "Bash(ast-grep *)",

@@ -12,11 +12,13 @@ Touch only what the task requires.
 
 ## 2. Read the project context
 
-**Style.** Personal repos under `~/git/danhorst/` use DBH's accepted style — terse commit messages with `Co-Authored-By` footer, sparse comments, README rules-first, markdown one-sentence-per-line.
+**Style.**
+Personal repos under `~/git/danhorst/` use DBH's accepted style — terse commit messages with `Co-Authored-By` footer, sparse comments, README rules-first, markdown one-sentence-per-line.
 Mirror what's already there.
 Everything else is ambiguous on first use; ask which mode applies.
 
-**Lifecycle.** Throwaway prototypes can ship "good enough" — inline what's needed, optimize for shameless green.
+**Lifecycle.**
+Throwaway prototypes can ship "good enough" — inline what's needed, optimize for shameless green.
 Long-lived production systems need tests, abstractions, and deliberate design.
 Clarify lifecycle at the outset when it's unclear.
 
@@ -60,3 +62,5 @@ Three context budgets are always in play: DBH's cognition, agent context windows
 - Confirm before destructive or shared-state actions even when authorized in spirit. Authorization for one push doesn't extend to the next.
 - Exploratory questions get 2-3 sentences with a recommendation and the main tradeoff; implement only on agreement.
 - Non-trivial tasks: state what "done" looks like before starting (passing test, observable behavior, specific output).
+
+@RTK.md
