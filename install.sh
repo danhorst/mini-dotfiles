@@ -177,6 +177,13 @@ section "Codex"
 echo "Linking codex"
 safe_symlink "/Applications/Codex.app/Contents/Resources/codex" "$(brew --prefix)/bin/codex"
 
+mkdir -p "$HOME/.codex"
+echo "Symlinking Codex config into $HOME/.codex"
+while IFS= read -r -d '' file; do
+  filename="$(basename "$file")"
+  safe_symlink "$file" "$HOME/.codex/$filename"
+done < <(find "$dotfiles_directory/codex" -maxdepth 1 -type f -print0)
+
 if command -v rtk &>/dev/null && [ -d "/Applications/Codex.app" ]; then
   echo "Bootstrapping rtk for Codex"
   rtk init --codex --global
