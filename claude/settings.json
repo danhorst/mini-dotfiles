@@ -37,13 +37,13 @@
         "matcher": "Bash"
       },
       {
-        "matcher": "Bash",
         "hooks": [
           {
-            "type": "command",
-            "command": "rtk hook claude"
+            "command": "rtk hook claude",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash"
       }
     ],
     "SessionStart": [
@@ -57,7 +57,7 @@
       }
     ]
   },
-  "model": "sonnet",
+  "model": "Opus",
   "permissions": {
     "allow": [
       "Bash(ast-grep *)",
