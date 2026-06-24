@@ -1,4 +1,5 @@
 brew "danhorst/tap/after-midnight"
+brew "danhorst/tap/photo-import"
 brew "lima"
 brew "terminal-notifier"
 brew "xcodegen"
