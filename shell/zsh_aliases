@@ -36,6 +36,12 @@ alias gst='git status --ignore-submodules=dirty'
 
 alias mr='clear && machine_report'
 
+###############################################################################
+# Untracked aliases
+###############################################################################
+
+# shellcheck source=/dev/null
+[ -f "$HOME/.zsh_aliases.local" ] && source "$HOME/.zsh_aliases.local"
 
 ###############################################################################
 # SSH

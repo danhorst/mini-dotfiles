@@ -101,5 +101,6 @@
   },
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark-daltonized"
+  "theme": "dark-daltonized",
+  "tui": "fullscreen"
 }
