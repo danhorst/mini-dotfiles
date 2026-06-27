@@ -43,6 +43,16 @@ while IFS= read -r -d '' file; do
   safe_symlink "$file" "$HOME/.$filename"
 done < <(find "$dotfiles" -maxdepth 1 -type f -print0)
 
+section "Config (XDG)"
+
+echo "Symlinking tracked config files into $HOME/.config"
+while IFS= read -r rel; do
+  [ "$rel" = "shell/config/.gitkeep" ] && continue
+  dest="$HOME/.config/${rel#shell/config/}"
+  mkdir -p "$(dirname "$dest")"
+  safe_symlink "$dotfiles_directory/$rel" "$dest"
+done < <(git -C "$dotfiles_directory" ls-files shell/config)
+
 section "Git hooks"
 
 current_hooks_path=$(git config --local --get core.hooksPath 2>/dev/null || true)

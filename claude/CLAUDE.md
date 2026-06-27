@@ -63,4 +63,12 @@ Three context budgets are always in play: DBH's cognition, agent context windows
 - Exploratory questions get 2-3 sentences with a recommendation and the main tradeoff; implement only on agreement.
 - Non-trivial tasks: state what "done" looks like before starting (passing test, observable behavior, specific output).
 
+## 7. OpenSpec
+
+`openspec` (the `@fission-ai/openspec` CLI, installed via mise) drives spec-driven changes.
+
+- Per project: run `openspec init` once to scaffold `openspec/` and the generated Claude skill files.
+- Run `openspec update` after upgrading the CLI to regenerate the skills and slash commands.
+- Specs and changes live in each project's `openspec/`, not here; this repo only tracks that the tool exists and how to wire it in.
+
 @RTK.md

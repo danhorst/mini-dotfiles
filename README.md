@@ -55,21 +55,21 @@ cd ~/git/danhorst/dotfiles && ./install.sh
 
 ## Layout
 
-| Path                                    | Contents                                                                       |
-| --------------------------------------- | ------------------------------------------------------------------------------ |
-| `shell/`                                | Dotfiles symlinked into `$HOME` (zshrc, gitconfig, tmux.conf, etc.)            |
-| `shell/config/`                         | XDG config files symlinked into `$HOME/.config` (ghostty, zed, mise, gh, etc.) |
-| `bin/`                                  | Personal utility scripts                                                       |
-| `claude/`                               | Claude Code settings and CLAUDE.md                                             |
-| `caddy/`                                | Sudoers file for `caddy`                                                       |
-| `unbound/`                              | Local DNS config for `.test` domain                                            |
-| `lima/`                                 | Lima VM config and setup scripts                                               |
-| `experiments/`                          | Self-contained research rigs (e.g. `sdd-bakeoff`); not deployed config         |
-| `lib/`                                  | Shared shell helpers and platform detection (`common.sh`)                      |
-| `install.sh`                            | Orchestrator; runs cross-platform steps then sources the platform script       |
-| `install.macos.sh` / `install.linux.sh` | Platform-specific install steps                                                |
-| `bootstrap.linux.sh`                    | One-time Ubuntu/WSL prep (apt prereqs, Linuxbrew, zsh, clone)                  |
-| `Brewfile`                              | Cross-platform Homebrew bundle; `Brewfile.macos` / `Brewfile.linux` add per-OS |
+| Path                                    | Contents                                                                             |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| `shell/`                                | Dotfiles symlinked into `$HOME` (zshrc, gitconfig, tmux.conf, etc.)                  |
+| `shell/config/`                         | Tracked XDG config files symlinked into `$HOME/.config` (mise, alacritty, 1Password) |
+| `bin/`                                  | Personal utility scripts                                                             |
+| `claude/`                               | Claude Code settings and CLAUDE.md                                                   |
+| `caddy/`                                | Sudoers file for `caddy`                                                             |
+| `unbound/`                              | Local DNS config for `.test` domain                                                  |
+| `lima/`                                 | Lima VM config and setup scripts                                                     |
+| `experiments/`                          | Self-contained research rigs (e.g. `sdd-bakeoff`); not deployed config               |
+| `lib/`                                  | Shared shell helpers and platform detection (`common.sh`)                            |
+| `install.sh`                            | Orchestrator; runs cross-platform steps then sources the platform script             |
+| `install.macos.sh` / `install.linux.sh` | Platform-specific install steps                                                      |
+| `bootstrap.linux.sh`                    | One-time Ubuntu/WSL prep (apt prereqs, Linuxbrew, zsh, clone)                        |
+| `Brewfile`                              | Cross-platform Homebrew bundle; `Brewfile.macos` / `Brewfile.linux` add per-OS       |
 
 [1]: https://github.com/danhorst/dotfiles
 [2]: https://github.com/danhorst/wrk
