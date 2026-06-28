@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# trim_video — Trim seconds off a video without reencoding
+# Usage: ./trim_video [-s|--start N] [-e|--end N] [-w|--write-in-place] input.mp4
+#   -s, --start N           drop N seconds from the start
+#   -e, --end N             drop N seconds from the end
+#   -w, --write-in-place    replace the input clip instead of writing input_trimmed.ext
+# Note: -c copy cuts on the nearest keyframe, so trims are not frame-accurate.
+
+set -euo pipefail
+
+START=""
+END=""
+IN_PLACE=0
+INPUT=""
+
+usage() {
+  cat <<'EOF'
+Usage: trim_video [-s|--start N] [-e|--end N] [-w|--write-in-place] input.mp4
+  -s, --start N           drop N seconds from the start
+  -e, --end N             drop N seconds from the end
+  -w, --write-in-place    replace the input instead of writing input_trimmed.ext
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--start) START="$2"; shift 2;;
+    -e|--end) END="$2"; shift 2;;
+    -w|--write-in-place) IN_PLACE=1; shift;;
+    -h|--help) usage; exit 0;;
+    -*) echo "Unknown option: $1"; usage; exit 1;;
+    *) INPUT="$1"; shift;;
+  esac
+done
+
+if [[ -z "$INPUT" ]]; then
+  usage
+  exit 1
+fi
+
+if [[ ! -f "$INPUT" ]]; then
+  echo "Error: File not found: $INPUT"
+  exit 1
+fi
+
+if [[ -z "$START" && -z "$END" ]]; then
+  echo "Error: specify at least one of -s/--start or -e/--end"
+  exit 1
+fi
+
+EXT="${INPUT##*.}"
+BASENAME="${INPUT%.*}"
+
+if (( IN_PLACE )); then
+  OUTPUT="${BASENAME}.trim_tmp.${EXT}"
+else
+  OUTPUT="${BASENAME}_trimmed.${EXT}"
+fi
+
+# -t (keep duration) is only needed when trimming from the end.
+KEEP=""
+if [[ -n "$END" ]]; then
+  DURATION=$(ffprobe -v error -show_entries format=duration \
+    -of default=noprint_wrappers=1:nokey=1 "$INPUT")
+  KEEP=$(awk -v d="$DURATION" -v e="$END" -v s="${START:-0}" 'BEGIN{print d - e - s}')
+  if awk -v k="$KEEP" 'BEGIN{exit !(k <= 0)}'; then
+    echo "Error: nothing left to keep (start+end exceed duration ${DURATION}s)"
+    exit 1
+  fi
+fi
+
+ARGS=()
+[[ -n "$START" ]] && ARGS+=(-ss "$START")
+ARGS+=(-i "$INPUT")
+[[ -n "$KEEP" ]] && ARGS+=(-t "$KEEP")
+ARGS+=(-map 0 -c copy -y)
+# +faststart is only valid for the mov/mp4 muxer.
+shopt -s nocasematch
+case "$EXT" in
+  mp4|mov|m4v) ARGS+=(-movflags +faststart);;
+esac
+shopt -u nocasematch
+
+echo "Trimming: $INPUT"
+[[ -n "$START" ]] && echo "  start: -${START}s"
+[[ -n "$END" ]] && echo "  end:   -${END}s"
+
+ffmpeg "${ARGS[@]}" "$OUTPUT"
+
+if (( IN_PLACE )); then
+  mv "$OUTPUT" "$INPUT"
+  echo "Done: $INPUT (in place)"
+else
+  echo "Done: $OUTPUT"
+fi
