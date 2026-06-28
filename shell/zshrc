@@ -22,34 +22,24 @@ elif [[ -S "$HOME/.1password/agent.sock" ]]; then
 fi
 
 ########################################################################
-# Homebrew setup
+# Homebrew + mise (re-assert order after macOS path_helper)
+#
+# Env and PATH are built in zshenv. On macOS, /etc/zprofile's path_helper
+# runs between zshenv and zshrc and reorders PATH, pushing Homebrew/mise
+# behind /usr/bin. Re-running these idempotent prepends restores order for
+# interactive login shells; `mise activate` also wires hooks + completions.
 ########################################################################
 
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
+if type brew &>/dev/null; then
+  eval "$(brew shellenv)"
 
-if type brew &>/dev/null
-then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
   autoload -Uz compinit
   compinit
 fi
 
-########################################################################
-# Editor setup
-########################################################################
-if [ -f "$(brew --prefix)/bin/vim" ]; then
- # echo "vim already installed via Homebrew"
-else
-  brew install vim
-fi
+eval "$(mise activate zsh)"
 
-export EDITOR="$(brew --prefix)/bin/vim"
-export VISUAL="$(brew --prefix)/bin/vim"
 bindkey -e  # use emacs key bindings (zsh defaults to vi mode when EDITOR contains 'vi')
 
 ########################################################################
@@ -66,58 +56,15 @@ export GPG_TTY=$TTY
 source "$HOME/.zsh_aliases"
 
 ########################################################################
-# Load scripts
-########################################################################
-
-[ -d "$HOME/.bin" ] && PATH="$HOME/.bin:$PATH"
-[ -d "$HOME/git/danhorst/dotfiles/claude/bin" ] && PATH="$PATH:$HOME/git/danhorst/dotfiles/claude/bin"
-
-########################################################################
-# Load secrets
-########################################################################
-
-[ -f "$HOME/.env" ] && source "$HOME/.env"
-
-########################################################################
-# Add UVX tools
-########################################################################
-
-[ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"
-
-########################################################################
-# Cargo
-########################################################################
-
-[ -d "$HOME/.cargo/bin" ] && PATH="$PATH:$HOME/.cargo/bin"
-[ -d "$HOMEBREW_PREFIX/opt/rustup/bin" ] && PATH="$HOMEBREW_PREFIX/opt/rustup/bin:$PATH"
-
-########################################################################
-# Golang
-########################################################################
-
-mkdir -p "$HOME/.go/bin"
-export GOPATH="$HOME/.go"
-[ -d "$HOME/.go/bin" ] && PATH="$PATH:$HOME/.go/bin"
-
-########################################################################
-# fzf
+# fzf keybindings + completion
 ########################################################################
 
 # https://github.com/junegunn/fzf#using-homebrew
 # Includes optional keybindings
 command -v fzf >/dev/null && source <(fzf --zsh)
 
-export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
-
-export FZF_COMPLETION_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
-export FZF_CTRL_R_OPTS="--ansi"
-export FZF_CTRL_T_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
-
 # Allows invoking Alt-c on a Mac keyboard without other modifications
 bindkey "ç" fzf-cd-widget
-
-export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git --exclude Library --exclude .asdf --exclude .go"
-export FZF_ALT_C_OPTS="--ansi"
 
 # Customize completion functions
 # source: https://thevaluable.dev/fzf-shell-integration/
@@ -128,29 +75,6 @@ _fzf_compgen_path() {
 _fzf_compgen_dir() {
    fd --type d --hidden --follow --exclude ".git" . "$1"
 }
-
-
-########################################################################
-# PKM
-########################################################################
-
-export OBSIDIAN_VAULT_PATH="$HOME/Documents/Obsidian/Memex"
-export CORPUS_PUBLISH_PATH="$HOME/git/danhorst/danhorst.com"
-
-export XDG_CONFIG_HOME="$HOME/.config"
-
-########################################################################
-# LM Studio
-########################################################################
-
-[ -d "$HOME/.lmstudio/bin" ] && PATH="$PATH:$HOME/.lmstudio/bin"
-
-########################################################################
-# Ensure PATH is set properly
-########################################################################
-
-export PATH
-eval "$(mise activate zsh)"
 
 ########################################################################
 # Prompt

@@ -57,7 +57,7 @@ cd ~/git/danhorst/dotfiles && ./install.sh
 
 | Path                                    | Contents                                                                             |
 | --------------------------------------- | ------------------------------------------------------------------------------------ |
-| `shell/`                                | Dotfiles symlinked into `$HOME` (zshrc, gitconfig, tmux.conf, etc.)                  |
+| `shell/`                                | Dotfiles symlinked into `$HOME` (zshenv, zshrc, gitconfig, tmux.conf, etc.)          |
 | `shell/config/`                         | Tracked XDG config files symlinked into `$HOME/.config` (mise, alacritty, 1Password) |
 | `bin/`                                  | Personal utility scripts                                                             |
 | `claude/`                               | Claude Code settings and CLAUDE.md                                                   |

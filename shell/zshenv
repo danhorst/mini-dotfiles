@@ -1,0 +1,92 @@
+########################################################################
+# zshenv — sourced by ALL zsh invocations (interactive, scripts, non-login)
+#
+# Environment variables and PATH only. No interactive-only calls and no
+# output: keep this fast and silent so non-interactive shells stay clean.
+# Interactive concerns (prompt, aliases, keybindings) live in zshrc.
+#
+# macOS note: /etc/zprofile runs path_helper AFTER this file for login
+# shells, reordering PATH so /usr/bin lands ahead of Homebrew/mise. zshrc
+# re-asserts brew + mise after path_helper for interactive login shells;
+# non-login non-interactive shells skip path_helper, so the order here holds.
+########################################################################
+
+########################################################################
+# Homebrew setup
+########################################################################
+
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+########################################################################
+# Editor
+########################################################################
+
+export EDITOR="$HOMEBREW_PREFIX/bin/vim"
+export VISUAL="$HOMEBREW_PREFIX/bin/vim"
+
+########################################################################
+# PATH: personal scripts
+########################################################################
+
+[ -d "$HOME/.bin" ] && PATH="$HOME/.bin:$PATH"
+[ -d "$HOME/git/danhorst/dotfiles/claude/bin" ] && PATH="$PATH:$HOME/git/danhorst/dotfiles/claude/bin"
+
+########################################################################
+# PATH: UVX tools
+########################################################################
+
+[ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"
+
+########################################################################
+# PATH: Cargo
+########################################################################
+
+[ -d "$HOME/.cargo/bin" ] && PATH="$PATH:$HOME/.cargo/bin"
+[ -d "$HOMEBREW_PREFIX/opt/rustup/bin" ] && PATH="$HOMEBREW_PREFIX/opt/rustup/bin:$PATH"
+
+########################################################################
+# PATH: Golang
+########################################################################
+
+export GOPATH="$HOME/.go"
+[ -d "$HOME/.go/bin" ] && PATH="$PATH:$HOME/.go/bin"
+
+########################################################################
+# PATH: mise shims
+#
+# Fallback so mise-managed runtimes resolve in non-interactive shells.
+# Interactive shells prepend the active version via `mise activate` (zshrc).
+########################################################################
+
+[ -d "$HOME/.local/share/mise/shims" ] && PATH="$HOME/.local/share/mise/shims:$PATH"
+
+export PATH
+
+########################################################################
+# XDG base directories
+########################################################################
+
+export XDG_CONFIG_HOME="$HOME/.config"
+
+########################################################################
+# fzf defaults (env only; keybindings/completion are wired in zshrc)
+########################################################################
+
+export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
+
+export FZF_COMPLETION_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+export FZF_CTRL_R_OPTS="--ansi"
+export FZF_CTRL_T_OPTS="--multi --ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+
+export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git --exclude Library --exclude .asdf --exclude .go"
+export FZF_ALT_C_OPTS="--ansi"
+
+########################################################################
+# UNTRACKED: Secrets & local overrides
+########################################################################
+
+[ -f "$HOME/.zshenv.local" ] && source "$HOME/.zshenv.local"

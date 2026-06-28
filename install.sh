@@ -68,6 +68,9 @@ section "Utilities"
 echo "Setting up personal scripts"
 safe_symlink "$dotfiles_directory/bin" "$HOME/.bin"
 
+echo "Ensuring GOPATH bin directory exists"
+mkdir -p "$HOME/.go/bin"
+
 section "Packages"
 
 echo "Ensuring baseline brew formulas are installed"
