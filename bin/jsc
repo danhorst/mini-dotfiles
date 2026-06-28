@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+json-sort claude/settings.json
