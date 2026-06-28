@@ -68,7 +68,7 @@ function fp {
   elif command -v xclip &>/dev/null; then
     printf '%s' "$p" | xclip -selection clipboard
   fi
-  echo "$p"
+  printf 'Copied: %s\n' "$p"
 }
 
 function ds {
