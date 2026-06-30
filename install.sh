@@ -100,15 +100,20 @@ if [ -f "$_bundle_stamp" ] && ! ssh-add -l &>/dev/null; then
 elif [ "$brew_force" = false ] && [ -f "$_bundle_stamp" ] && (( $(date +%s) - $(file_mtime "$_bundle_stamp") < 86400 )); then
   echo "  Skipping: brew bundle ran within the last 24h (use -b to force)"
 else
-  brew update
-  HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v
+  _bundle_ok=true
+  brew update || _bundle_ok=false
+  HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file Brewfile -v || _bundle_ok=false
   if [ -f "Brewfile.$OS" ]; then
-    HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file "Brewfile.$OS" -v
+    HOMEBREW_NO_AUTO_UPDATE=1 brew bundle --file "Brewfile.$OS" -v || _bundle_ok=false
   fi
   if [ "$upgrade" = true ]; then
     brew upgrade
   fi
-  touch "$_bundle_stamp"
+  if [ "$_bundle_ok" = true ]; then
+    touch "$_bundle_stamp"
+  else
+    echo "  brew bundle had errors; stamp not set — re-run to retry"
+  fi
 fi
 
 section "mise"
