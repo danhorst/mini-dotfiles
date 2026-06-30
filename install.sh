@@ -89,9 +89,6 @@ mkdir -p "$HOME/.go/bin"
 
 section "Packages"
 
-echo "Trusting third-party tap formulas"
-bash "$dotfiles_directory/trust-no-one.sh"
-
 echo "Ensuring baseline brew formulas are installed"
 _bundle_stamp="${HOME}/.homebrew-bundle-last-run"
 if ! git diff --quiet HEAD -- Brewfile "Brewfile.$OS" 2>/dev/null; then

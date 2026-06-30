@@ -43,6 +43,10 @@ else
 fi
 eval "$("$BREW_BIN" shellenv)"
 
+banner "Third-party taps"
+brew tap danhorst/tap
+bash "$REPO_DIR/trust-no-one.sh"
+
 banner "Login shell"
 zsh_path="$(command -v zsh)"
 if ! grep -qxF "$zsh_path" /etc/shells; then
