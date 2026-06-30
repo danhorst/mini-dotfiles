@@ -44,7 +44,7 @@ if is_linux && ! command -v brew &>/dev/null; then
   unset _brew
 fi
 if is_linux && ! command -v brew &>/dev/null; then
-  bash "$dotfiles_directory/bootstrap.linux.sh"
+  NONINTERACTIVE=1 bash "$dotfiles_directory/vendor/brew-install.sh"
   for _brew in /home/linuxbrew/.linuxbrew/bin/brew ~/.linuxbrew/bin/brew; do
     [ -x "$_brew" ] && eval "$($_brew shellenv)" && break
   done
