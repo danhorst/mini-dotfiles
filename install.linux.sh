@@ -1,7 +1,7 @@
 #!/bin/bash
 # Linux/WSL install steps, sourced by install.sh.
-# The core productivity layer (shell, CLI tools, mise, Claude Code) is handled
-# by install.sh. This file is where Linux-only setup would go.
+# The core productivity layer (shell, CLI tools, mise) is handled by install.sh.
+# This file covers Linux-only setup: Claude Code (npm), default shell.
 
 section "Default shell (zsh)"
 
@@ -20,6 +20,14 @@ if [ "$current_shell" = "$zsh_path" ]; then
 else
   echo "Switching login shell to $zsh_path (chsh may prompt for your password)"
   chsh -s "$zsh_path" || echo "WARN: chsh failed; run 'chsh -s $zsh_path' manually"
+fi
+
+section "Claude Code"
+
+if command -v claude &>/dev/null; then
+  echo "Claude Code already installed: $(claude --version)"
+else
+  npm install -g @anthropic-ai/claude-code
 fi
 
 section "Linux notes"
