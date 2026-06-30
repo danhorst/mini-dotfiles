@@ -7,7 +7,6 @@ brew "xwmx/taps/pb"
 
 cask "agentsview"
 cask "appcleaner"
-cask "claude-code"
 cask "codex-app"
 cask "conductor"
 cask "cmux"
