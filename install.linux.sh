@@ -22,14 +22,6 @@ else
   chsh -s "$zsh_path" || echo "WARN: chsh failed; run 'chsh -s $zsh_path' manually"
 fi
 
-section "Claude Code"
-
-if command -v claude &>/dev/null; then
-  echo "Claude Code already installed: $(claude --version)"
-else
-  npm install -g @anthropic-ai/claude-code
-fi
-
 section "Linux notes"
 
 echo "Core productivity layer installed by install.sh (shell, Brewfile, mise, Claude Code)."
