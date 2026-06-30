@@ -44,9 +44,11 @@ if is_linux && ! command -v brew &>/dev/null; then
   unset _brew
 fi
 if is_linux && ! command -v brew &>/dev/null; then
-  echo "ERROR: brew not found. Run bootstrap.linux.sh first:" >&2
-  echo "  curl -fsSL https://raw.githubusercontent.com/danhorst/dotfiles/main/bootstrap.linux.sh | bash" >&2
-  exit 1
+  bash "$dotfiles_directory/bootstrap.linux.sh"
+  for _brew in /home/linuxbrew/.linuxbrew/bin/brew ~/.linuxbrew/bin/brew; do
+    [ -x "$_brew" ] && eval "$($_brew shellenv)" && break
+  done
+  unset _brew
 fi
 
 section "Dotfiles"
