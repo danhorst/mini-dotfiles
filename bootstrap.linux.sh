@@ -10,21 +10,28 @@ set -euo pipefail
 
 REPO_URL="https://github.com/danhorst/dotfiles.git"
 REPO_DIR="$HOME/git/danhorst/dotfiles"
-BREW_BIN="/home/linuxbrew/.linuxbrew/bin/brew"
 
 rule() { printf '%s\n' "$(printf '%80s' '' | tr ' ' "$1")"; }
 banner() { rule '*'; printf '* %s\n' "$1"; rule '*'; }
+
+_find_brew() {
+  for _b in /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+    [ -x "$_b" ] && echo "$_b" && return
+  done
+}
 
 banner "apt prerequisites"
 sudo apt-get update
 sudo apt-get install -y build-essential procps curl file git zsh
 
 banner "Linuxbrew"
-if [ -x "$BREW_BIN" ]; then
+BREW_BIN="$(_find_brew)"
+if [ -n "$BREW_BIN" ]; then
   echo "Linuxbrew already installed at $BREW_BIN"
 else
   NONINTERACTIVE=1 /bin/bash -c \
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  BREW_BIN="$(_find_brew)"
 fi
 eval "$("$BREW_BIN" shellenv)"
 

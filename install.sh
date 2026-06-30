@@ -36,9 +36,12 @@ dotfiles="$dotfiles_directory/shell"
 source "$dotfiles_directory/lib/common.sh"
 
 # Linuxbrew isn't on PATH in a fresh shell; bootstrap.linux.sh eval'd it
-# for its own process only.
-if is_linux && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# for its own process only. Try both common install locations.
+if is_linux && ! command -v brew &>/dev/null; then
+  for _brew in /home/linuxbrew/.linuxbrew/bin/brew ~/.linuxbrew/bin/brew; do
+    [ -x "$_brew" ] && eval "$($_brew shellenv)" && break
+  done
+  unset _brew
 fi
 
 section "Dotfiles"
