@@ -69,7 +69,7 @@
 [user]
 	name = Dan Brubaker Horst
 	email = dan.brubaker.horst@gmail.com
-	signingkey = /Users/dbh/.ssh/git_signing.pub
+	signingkey = ~/.ssh/git_signing.pub
 [clone]
 	defaultRemoteName = origin
 [init]
@@ -83,4 +83,4 @@
 [tag]
 	gpgsign = true
 [gpg "ssh"]
-	allowedSignersFile = /Users/dbh/.ssh/allowed_signers
+	allowedSignersFile = ~/.ssh/allowed_signers
