@@ -1,3 +1,4 @@
 # Linux/WSL-only Homebrew packages.
-# Empty for now — the cross-platform core lives in Brewfile.
 # (No clipboard helper needed under WSL; the bridge is clip.exe via Windows interop.)
+
+brew "socat"  # WSL SSH relay: bridges Windows OpenSSH agent to a Unix socket via npiperelay.exe

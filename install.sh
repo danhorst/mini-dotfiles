@@ -35,6 +35,12 @@ dotfiles="$dotfiles_directory/shell"
 # shellcheck source=/dev/null
 source "$dotfiles_directory/lib/common.sh"
 
+# Linuxbrew isn't on PATH in a fresh shell; bootstrap.linux.sh eval'd it
+# for its own process only.
+if is_linux && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
 section "Dotfiles"
 
 echo "Symlinking dotfiles into $HOME"
@@ -79,7 +85,7 @@ if ! git diff --quiet HEAD -- Brewfile "Brewfile.$OS" 2>/dev/null; then
   echo "  Brewfile has uncommitted changes; forcing bundle"
   brew_force=true
 fi
-if ! ssh-add -l &>/dev/null; then
+if [ -f "$_bundle_stamp" ] && ! ssh-add -l &>/dev/null; then
   echo "  Skipping: no SSH keys loaded on agent"
 elif [ "$brew_force" = false ] && [ -f "$_bundle_stamp" ] && (( $(date +%s) - $(file_mtime "$_bundle_stamp") < 86400 )); then
   echo "  Skipping: brew bundle ran within the last 24h (use -b to force)"
