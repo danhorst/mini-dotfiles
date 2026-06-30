@@ -1,5 +1,3 @@
-tap "homebrew/bundle"
-tap "homebrew/services"
 tap "danhorst/tap"
 
 brew "ast-grep"
