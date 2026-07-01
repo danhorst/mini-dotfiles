@@ -57,7 +57,6 @@
       }
     ]
   },
-  "model": "Sonnet",
   "permissions": {
     "allow": [
       "Bash(ast-grep *)",
