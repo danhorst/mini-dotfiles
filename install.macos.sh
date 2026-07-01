@@ -104,6 +104,7 @@ section "SSH key management"
 
 ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
 SSH_KEY="$(git config --global user.signingkey)"
+SSH_KEY="${SSH_KEY/#\~/$HOME}"
 GIT_EMAIL="$(git config --global user.email)"
 
 if [ -z "$SSH_KEY" ]; then
