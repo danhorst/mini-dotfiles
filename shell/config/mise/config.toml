@@ -1,6 +1,9 @@
 [tools]
 node = "24"
-"npm:@anthropic-ai/claude-code" = "latest"
+# mise installs npm tools with --ignore-scripts, so claude-code's postinstall
+# never runs and its native binary stays unlinked. Re-run it here; install.cjs
+# hardlinks the binary and is safe to repeat.
+"npm:@anthropic-ai/claude-code" = { version = "latest", postinstall = "node \"$MISE_TOOL_INSTALL_PATH/lib/node_modules/@anthropic-ai/claude-code/install.cjs\"" }
 "npm:@fission-ai/openspec" = "latest"
 "npm:playwright" = "latest"
 ruby = "4"
