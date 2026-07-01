@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: repo-mover OLD_PATH NEW_PATH"
+  echo ""
+  echo "Move/rename a repo directory and its Claude Code project state"
+  echo "(~/.claude/projects/<encoded-path>) together, so memory and"
+  echo "session history stay reachable at the new location."
+  echo ""
+  echo "If the basename changes and OLD_PATH is a git repo with a"
+  echo "github.com origin, also renames the GitHub repo via gh (which"
+  echo "prompts for confirmation and updates the local origin remote)"
+  echo "before moving anything locally."
+}
+
+case "${1:-}" in
+  -h|--help)
+    usage
+    exit 0
+    ;;
+esac
+
+if [ "$#" -ne 2 ]; then
+  usage >&2
+  exit 1
+fi
+
+old_path="$(cd "$1" 2>/dev/null && pwd)" || { echo "ERROR: not a directory: $1" >&2; exit 1; }
+
+new_arg="$2"
+if [ -e "$new_arg" ]; then
+  echo "ERROR: destination already exists: $new_arg" >&2
+  exit 1
+fi
+
+new_parent="$(cd "$(dirname "$new_arg")" 2>/dev/null && pwd)" || { echo "ERROR: destination parent does not exist: $(dirname "$new_arg")" >&2; exit 1; }
+new_path="$new_parent/$(basename "$new_arg")"
+
+projects_dir="$HOME/.claude/projects"
+old_encoded="${old_path//\//-}"
+new_encoded="${new_path//\//-}"
+old_state="$projects_dir/$old_encoded"
+new_state="$projects_dir/$new_encoded"
+
+if [ -e "$new_state" ]; then
+  echo "ERROR: Claude project state already exists at destination: $new_state" >&2
+  exit 1
+fi
+
+old_name="$(basename "$old_path")"
+new_name="$(basename "$new_path")"
+
+if [ "$old_name" != "$new_name" ]; then
+  origin_url="$(git -C "$old_path" remote get-url origin 2>/dev/null || true)"
+  if [[ "$origin_url" == *github.com* ]]; then
+    echo "renaming GitHub repo: $old_name -> $new_name"
+    (cd "$old_path" && gh repo rename "$new_name")
+  fi
+fi
+
+mv "$old_path" "$new_path"
+echo "moved $old_path -> $new_path"
+
+if [ -d "$old_state" ]; then
+  mv "$old_state" "$new_state"
+  echo "moved $old_state -> $new_state"
+else
+  echo "no Claude project state found at $old_state"
+fi
