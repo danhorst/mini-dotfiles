@@ -1,6 +1,8 @@
 brew "danhorst/tap/after-midnight"
 brew "danhorst/tap/photo-import"
 brew "lima"
+brew "llama.cpp"
+brew "ollama"
 brew "terminal-notifier"
 brew "xcodegen"
 brew "xwmx/taps/pb"
