@@ -9,6 +9,7 @@ Three layers — an always-loaded base prompt, a per-project memory system, and 
 bin/          hook scripts and helpers
 commands/     slash commands (e.g. /wrap-it-up)
 etc/          data files consumed by hooks (extension lists)
+fixtures/     reference templates consumed by commands (e.g. release/)
 memory/       cemented memory seeds, deployed at SessionStart
 CLAUDE.md     always-loaded judgment-driven rules
 settings.json harness config: hooks, permissions, model
