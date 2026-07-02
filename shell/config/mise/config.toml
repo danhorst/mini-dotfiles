@@ -8,7 +8,7 @@ node = "24"
 "npm:playwright" = "latest"
 ruby = "4"
 uv = "latest"
-"pipx:osxphotos" = "latest"
+"pipx:osxphotos" = { version = "latest", os = ["macos"] }
 
 [settings]
 
