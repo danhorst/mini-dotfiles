@@ -59,6 +59,12 @@ function csv {
 }
 
 function fp {
+  if [[ ! -t 0 ]]; then
+    while IFS= read -r line; do
+      realpath "$line"
+    done
+    return
+  fi
   local p
   p=$(realpath "${1:-.}") || return
   if command -v pbcopy &>/dev/null; then
