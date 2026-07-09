@@ -4,6 +4,7 @@ brew "lima"
 brew "llama.cpp"
 brew "ollama"
 brew "terminal-notifier"
+brew "unar"
 brew "xcodegen"
 brew "xwmx/taps/pb"
 
