@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# net-triage — Isolate which network layer is broken when the machine stops making requests
+# Usage: net-triage
+# Run it while the network is broken, before rebooting. Logs to ~/Library/Logs/net-triage/.
+
+set -uo pipefail
+
+LOG_DIR="$HOME/Library/Logs/net-triage"
+mkdir -p "$LOG_DIR"
+LOG="$LOG_DIR/$(date +%Y%m%d-%H%M%S).log"
+exec > >(tee "$LOG") 2>&1
+
+echo "net-triage $(date)"
+echo
+
+GATEWAY=$(route -n get default 2>/dev/null | awk '/gateway/{print $2}')
+IFACE=$(route -n get default 2>/dev/null | awk '/interface/{print $2}')
+echo "default route: ${GATEWAY:-none} via ${IFACE:-none}"
+echo
+
+echo "== socket state =="
+netstat -an -p tcp | awk 'NR>2{print $6}' | sort | uniq -c | sort -rn
+netstat -m | grep -Ei 'denied|in use'
+echo "top socket holders:"
+lsof -nP -i 2>/dev/null | awk 'NR>1{print $1}' | sort | uniq -c | sort -rn | head -8
+echo
+
+echo "== tailscale =="
+tailscale status --self=true --peers=false 2>&1 | head -3
+echo
+
+echo "== layer tests =="
+t() {
+  local label="$1"; shift
+  if "$@" >/dev/null 2>&1; then
+    echo "PASS  $label"
+    return 0
+  else
+    echo "FAIL  $label ($*)"
+    return 1
+  fi
+}
+
+GW_OK=1; IP_OK=1; TCP_OK=1; EXTDNS_OK=1; SYSDNS_OK=1; MAGICDNS_OK=1
+[[ -n "${GATEWAY:-}" ]] && t "ping gateway" ping -c 1 -t 2 "$GATEWAY" || GW_OK=0
+t "ping 1.1.1.1 (raw IP, no DNS)" ping -c 1 -t 2 1.1.1.1 || IP_OK=0
+t "tcp connect 1.1.1.1:443" nc -z -G 3 1.1.1.1 443 || TCP_OK=0
+t "dns via 1.1.1.1 (bypasses local resolvers)" dig +time=2 +tries=1 @1.1.1.1 example.com || EXTDNS_OK=0
+t "dns via mDNSResponder (app path; hangs ~30s if wedged)" bash -c 'dscacheutil -q host -a name example.com | grep -q ip_address' || SYSDNS_OK=0
+t "dns via tailscale magicdns" dig +time=2 +tries=1 @100.100.100.100 example.com || MAGICDNS_OK=0
+echo
+
+echo "== verdict =="
+if [[ $GW_OK -eq 0 ]]; then
+  echo "Can't reach the gateway: local link problem."
+  echo "Fix: toggle Wi-Fi (networksetup -setairportpower en1 off/on) or renew DHCP."
+elif [[ $IP_OK -eq 0 || $TCP_OK -eq 0 ]]; then
+  echo "Gateway reachable but internet unreachable by raw IP."
+  echo "Check another device on the same Wi-Fi:"
+  echo "  - other devices also dead -> router NAT table exhaustion (torrent load); reboot the AT&T gateway, not the Mac"
+  echo "  - other devices fine      -> local port/socket exhaustion; quit the torrent client and Chrome, wait 60s (TIME_WAIT drain)"
+elif [[ $EXTDNS_OK -eq 1 && ( $SYSDNS_OK -eq 0 || $MAGICDNS_OK -eq 0 ) ]]; then
+  echo "Internet is fine; the local DNS path (Tailscale MagicDNS / mDNSResponder) is wedged."
+  echo "Fix, in order, retesting after each:"
+  echo "  1. sudo killall -HUP mDNSResponder"
+  echo "  2. tailscale down && tailscale up"
+  echo "  3. quit and relaunch the Tailscale app"
+else
+  echo "All tests pass; the network looks healthy right now."
+fi
+echo
+echo "log: $LOG"
