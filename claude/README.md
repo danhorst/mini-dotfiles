@@ -15,6 +15,18 @@ CLAUDE.md     always-loaded judgment-driven rules
 settings.json harness config: hooks, permissions, model
 ```
 
+## Path resolution
+
+Skills reference this directory's own subdirectories (`fixtures/`, `memory/`) without hardcoding a machine-specific path.
+`~/.claude/commands` is a symlink to `commands/` here, and is guaranteed to exist wherever Claude Code runs — skills resolve everything else relative to it:
+
+```
+CLAUDE_ROOT="$(dirname "$(readlink ~/.claude/commands)")"
+```
+
+`$CLAUDE_ROOT` is this directory (`dotfiles/claude`).
+Skills use `$CLAUDE_ROOT/fixtures/...`, `$CLAUDE_ROOT/memory/...`, etc. instead of writing out `~/git/danhorst/dotfiles/claude/...`, so they still resolve correctly if the checkout moves.
+
 ## The layered model
 
 **CLAUDE.md** loads into the system prompt every turn.

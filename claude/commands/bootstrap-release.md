@@ -1,5 +1,6 @@
 Wire a new repo into the standard homebrew-tap release process: `scripts/release`, `.github/workflows/release.yml`, a CHANGELOG template, and a Formula stub in `homebrew-tap`.
-Canonical fixtures live in `~/git/danhorst/dotfiles/claude/fixtures/release/` — read `fixtures/release/README.md` first; it documents both flavors and every `__PLACEHOLDER__`.
+Resolve `CLAUDE_ROOT="$(dirname "$(readlink ~/.claude/commands)")"` (see dotfiles/claude/README.md).
+Canonical fixtures live in `$CLAUDE_ROOT/fixtures/release/` — read `fixtures/release/README.md` first; it documents both flavors and every `__PLACEHOLDER__`.
 
 ## Steps
 

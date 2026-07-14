@@ -5,7 +5,8 @@ Live can drift behind cemented when a seed update wasn't mirrored — promotion 
 ## Steps
 
 1. Compute paths:
-   - Cemented seeds: `~/git/danhorst/dotfiles/claude/memory/`
+   - `CLAUDE_ROOT="$(dirname "$(readlink ~/.claude/commands)")"` (see dotfiles/claude/README.md).
+   - Cemented seeds: `$CLAUDE_ROOT/memory/`
    - Live memory: `~/.claude/projects/<encoded-cwd>/memory/` where `<encoded-cwd>` is `$PWD` with `/` replaced by `-`.
 
 2. Classify each `*.md` in live (excluding `MEMORY.md`):
@@ -35,4 +36,4 @@ Live can drift behind cemented when a seed update wasn't mirrored — promotion 
 7. Apply the selected actions.
    `cement-memory.sh` regenerates `MEMORY.md` from frontmatter and refuses any file marked `cement: false`.
 
-8. Run `git -C ~/git/danhorst/dotfiles status` so DBH can see what's staged. **Do not commit** — leave the working state clean for DBH's review.
+8. Run `git -C "$CLAUDE_ROOT" status` so DBH can see what's staged. **Do not commit** — leave the working state clean for DBH's review.

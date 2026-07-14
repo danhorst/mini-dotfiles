@@ -1,6 +1,7 @@
 Run the standard homebrew-tap release process for the current repo: promote CHANGELOG entries, tag, push, and confirm CI landed the tap formula update.
 Applies to any repo with `scripts/release` and a `.github/workflows/release.yml` matching the pattern in `homebrew-tap` — currently after-midnight, gemkeeper, md-tools, photo-management, wrk.
-See `~/git/danhorst/dotfiles/claude/fixtures/release/README.md` for the shape this follows.
+Resolve `CLAUDE_ROOT="$(dirname "$(readlink ~/.claude/commands)")"` (see dotfiles/claude/README.md).
+`$CLAUDE_ROOT/fixtures/release/README.md` documents the shape this follows.
 
 ## Steps
 
