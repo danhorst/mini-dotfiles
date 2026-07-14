@@ -20,6 +20,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Pin to the tag on both trigger paths — a workflow_dispatch checkout
+          # of branch HEAD may predate the release commit, yielding empty notes.
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -43,6 +47,10 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.bare }}"
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+          if [ -z "$(printf '%s' "$NOTES" | tr -d '[:space:]')" ]; then
+            echo "Error: no changelog entry found for $VERSION — refusing to create a release with empty notes"
+            exit 1
+          fi
           {
             echo "notes<<EOF"
             echo "$NOTES"
