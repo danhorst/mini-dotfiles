@@ -9,6 +9,8 @@
 - [feedback_config_ownership](feedback_config_ownership.md) — "where machine/tool-specific config belongs — in the tool, not the dotfiles repo"
 - [md-tools usage — mdsplit and mdtable](feedback_md_tools.md) — Pipe mdsplit into mdtable -i to round-trip a file; use &#124; not \| for pipes in table cells
 - [Prose voice for dev artifacts](feedback_prose_voice.md) — Match DBH's plain declarative prose for dev artifacts; avoid clever emphatic Claude-isms — essay voice is human-only
+- [feedback-repo-bin-path](feedback_repo_bin_path.md) — "Project bin/ dirs are almost always on DBH's PATH (check .mise.toml); scripts there can shadow system binaries — write helper scripts to call system tools by absolute path"
 - [feedback_skill_path_resolution](feedback_skill_path_resolution.md) — "Claude Code skills must resolve dotfiles/claude paths dynamically via the ~/.claude/commands symlink, never hardcode ~/git/danhorst/dotfiles/..."
+- [feedback-sudo-escalation](feedback_sudo_escalation.md) — "For helper scripts needing root, self-escalate at the top — don't prime sudo mid-script"
 - [Judgment-driven tool choices](feedback_tool_prefs.md) — Structural diffs (difft) and situational tools (scc/watchexec/bat/tv); the PreToolUse hook covers mechanical substitutions
 - [Verify a dangling blob before restoring](feedback_verify_blob_restore.md) — A recovered lost file can be a stale version; diff it semantically against HEAD before writing it back
