@@ -9,7 +9,7 @@ DBH is building a cost-optimized, spec-driven dev pipeline: idea → `/spec` →
 The bake-off (`experiments/sdd-bakeoff/`) is the experiment deciding the spec-granularity question empirically, to bound where SDD is worth its overhead.
 Context behind the mandate is deliberately oblique in the repo (external SDD push) — keep it that way.
 
-**Front half (shipped, branch `review-skills`):** `/spec` (`claude/commands/spec.md`, markdown-only) and `/second-opinion` (`claude/commands/second-opinion.md` + `claude/bin/second-opinion.sh`, wraps `codex exec` with auth-aware fallback).
+**Front half (shipped, branch `review-skills`):** `/spec` (`claude/commands/spec.md`, markdown-only) and `/second-opinion`, now the standalone `second-opinion` binary (`danhorst/tap/second-opinion`, multi-provider — codex/claude/antigravity) with its skill self-installed via `second-opinion skill install`; the old `claude/commands/second-opinion.md` + `claude/bin/second-opinion.sh` codex-only wrapper is retired.
 
 **Bake-off rig (`experiments/sdd-bakeoff/`, moved here from top-level `bakeoff/` 2026-06-19):** `README.md` (the why-layer), `SPEC.md`, `RUNBOOK.md`, `rubric.md`, `prompts/`, `grant.sh`, `fixtures/<name>/{SPEC.md,checklist.md,gate.sh}`, `fixtures/CANDIDATES.md` (queued fixtures + selection criteria), `results/<date>/findings.md` + `results/README.md` (the standing envelope roll-up).
 Cells = real approaches: control (Opus mono) ≈ work directly with a capable model; thesis (decompose→cheap-implement) ≈ the SDD workflow; challenger/diagnostic isolate decomposition from model price.
