@@ -4,7 +4,8 @@ set -euo pipefail
 # Idempotent, non-destructive: fills gaps in the live memory dir from cemented
 # seeds in dotfiles. Runs at SessionStart. Never overwrites live state.
 
-SEEDS_DIR="$HOME/git/danhorst/dotfiles/claude/memory"
+CLAUDE_ROOT="$(dirname "$(readlink "$HOME/.claude/commands")")"
+SEEDS_DIR="$CLAUDE_ROOT/memory"
 ENCODED_CWD="${PWD//\//-}"
 LIVE_DIR="$HOME/.claude/projects/${ENCODED_CWD}/memory"
 SEEDS_INDEX="$SEEDS_DIR/MEMORY.md"

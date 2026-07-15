@@ -87,6 +87,7 @@
       "Bash(ssh *)",
       "Bash(ssh-add *)",
       "Bash(tar *)",
+      "Bash(triage-memory.sh *)",
       "Bash(tv *)",
       "Bash(watchexec *)",
       "Bash(xattr *)",

@@ -2,38 +2,33 @@ End-of-session memory triage.
 Compare live memory against the cemented seed set and resolve each divergence in whichever direction makes sense per file.
 Live can drift behind cemented when a seed update wasn't mirrored — promotion isn't always the right move.
 
+The script buckets and diffs; you judge; DBH decides.
+`triage-memory.sh` does the deterministic bookkeeping (classification, staleness flags, diffs) so you spend context on judgment, not enumeration.
+
 ## Steps
 
-1. Compute paths:
-   - `CLAUDE_ROOT="$(dirname "$(readlink ~/.claude/commands)")"` (see dotfiles/claude/README.md).
-   - Cemented seeds: `$CLAUDE_ROOT/memory/`
-   - Live memory: `~/.claude/projects/<encoded-cwd>/memory/` where `<encoded-cwd>` is `$PWD` with `/` replaced by `-`.
+1. Run `triage-memory.sh`.
+   It resolves live and cemented paths itself and prints the report.
+   If it reports "no memory changes to cement", relay that and stop.
 
-2. Classify each `*.md` in live (excluding `MEMORY.md`):
-   - **New** — in live, not in cemented. Likely an agent-added memory worth promoting.
-   - **Changed** — in both, content differs.
-   - **Excluded** — cemented version has `cement: false` in its frontmatter. Report briefly, do not offer.
-   - **Unchanged** — identical. Ignore silently.
+2. The report has three sections. Judge each — do not rubber-stamp the buckets:
 
-3. For each changed file, look for staleness signals in the LIVE version's frontmatter.
-   Either signal below suggests the live file is older than the cemented seed — drift from a seed update never mirrored to live, not a deliberate edit; mark the recommendation as **re-sync from cemented** in that case, otherwise default to **cement live to cemented**.
-   - An `originSessionId:` field (auto-memory system metadata; cemented seeds never carry this).
-   - Flat `type:` rather than the `metadata.type:` wrapper (pre-spec format).
+   - **CHANGED** — read the emitted diff (not the whole file) and decide the direction.
+     Default **cement** (live → cemented) for a clean change.
+     When a `stale-live` signal is flagged (`originSessionId`, `flat-type`), the live file is likely drift from a seed update never mirrored back, not a deliberate edit — default **re-sync** (cemented → live) instead.
+   - **NEW** — read the file's content. A new live memory is a *candidate*, not an automatic promotion: session-noise gets **skipped/dropped**, not cemented.
+   - **EXCLUDED** — seed is marked `cement: false` (templated). Reported for visibility only; nothing to offer.
 
-4. If no candidates remain after exclusions, report "no memory changes to cement" and stop.
+3. While judging, surface quality issues alongside your recommendation: a broken `[[link]]`, a `description` that should be rewritten before it lands in the index, a file grown to cover two facts that should split.
 
-5. For each new/changed candidate, show DBH:
-   - Filename and classification (new / changed / changed-with-stale-live).
-   - `description:` from frontmatter.
-   - For changed files: a brief diff (`difft` preferred, or `git diff --no-index --stat`).
-
-6. Ask DBH the direction per file via `AskUserQuestion` (single-select per question, batched in groups of up to 4 if needed).
-   For changed-with-stale-live files, present "Re-sync" first and label it Recommended; for new files and clean-changed files, present "Cement" first and label it Recommended.
-   - **Cement** (live → cemented): promote via `cement-memory.sh <filenames>`.
+4. Ask DBH the direction per file via `AskUserQuestion` (single-select, batched in groups of up to 4).
+   Order options recommended-first: **Re-sync** first for stale-changed files, **Cement** first for new and clean-changed files.
+   - **Cement** (live → cemented): `cement-memory.sh <filenames>`.
    - **Re-sync** (cemented → live): `cp` the seed over the live file.
    - **Skip**: leave the divergence.
 
-7. Apply the selected actions.
-   `cement-memory.sh` regenerates `MEMORY.md` from frontmatter and refuses any file marked `cement: false`.
+5. Apply the selected actions.
+   `cement-memory.sh` copies the files and regenerates `MEMORY.md` (via `memory-index.sh`); it refuses any seed marked `cement: false`.
 
-8. Run `git -C "$CLAUDE_ROOT" status` so DBH can see what's staged. **Do not commit** — leave the working state clean for DBH's review.
+6. Show what's staged: `git -C "$(dirname "$(readlink ~/.claude/commands)")" status`.
+   **Do not commit** — leave the working state clean for DBH's review.
