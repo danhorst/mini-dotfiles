@@ -2,6 +2,7 @@
 
 - [DBH profile and working dynamics](user_profile.md) — Who DBH is and the tensions shaping how he works with agents
 - [Workstation specs](reference_workstation.md) — Hardware facts for this machine — RAM and architecture — that drive context-discipline decisions
+- [project_claude_settings_live_writes](project_claude_settings_live_writes.md) — "Claude Code live-writes model into settings.json and reformats it; where that file is a symlinked tracked seed (this dotfiles repo) it shows perpetually dirty, and the durable model default lives in untracked settings.local.json"
 - [project-footnote-handling](project_footnote_handling.md) — How md-tools treats markdown footnotes and the danhorst.com parity/rendering constraints behind it
 - [project_shell_config_naming](project_shell_config_naming.md) — "shell config files named \"zsh\" are deliberately kept bash-compatible"
 - [Spec pipeline status](project_spec_pipeline.md) — Multi-model spec-driven dev pipeline — front half built; bake-off now n=3, SDD's envelope bounded both sides (thesis pays only in a middle band)
