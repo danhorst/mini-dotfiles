@@ -3,4 +3,4 @@ shell/config
 !shell/config/mise/
 *.swp
 
-.claude/settings.local.json
+claude/settings.local.json
