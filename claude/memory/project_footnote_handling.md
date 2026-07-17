@@ -16,4 +16,4 @@ Flush-left continuation works in CommonMark-family parsers but breaks Kramdown a
 **How to apply:** keep footnote definitions single-line in source `.md` (the portable, no-indent form).
 The danhorst.com `.txt` export uses a Ruby port `lib/md_wrap.rb` that must stay byte-for-byte in parity with the Go `mdwrap` (verify with a diff); its export calls `MdWrap.wrap(..., wrap_footnotes: true)`. danhorst.com renders footnotes as Tufte sidenotes via Kramdown → `lib/builders/sidenotes.rb`, which requires single-line footnote definitions to pair references with content.
 
-See [[feedback_md_tools]].
+See [[md-tools-usage-mdsplit-and-mdtable]].

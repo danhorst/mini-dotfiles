@@ -25,6 +25,7 @@ for f in "${staged[@]}"; do
   [[ -f "$f" ]] || continue
   if is_shell_script "$f"; then
     shellcheck "$f" || fail=1
+    claude/bin/bin-shadow-check.sh "$f" || fail=1
   fi
 done
 
@@ -59,5 +60,27 @@ if command -v mdsplit > /dev/null && command -v mdtable > /dev/null; then
     rm -f "$tmp"
   done
 fi
+
+# Memory seeds: validate the corpus whenever any seed is staged. memory-index.sh
+# regenerates the index but never checks it, so malformed seeds fail silently.
+for f in "${staged[@]}"; do
+  case "$f" in
+    claude/memory/*.md) claude/bin/memory-lint.sh || fail=1; break ;;
+  esac
+done
+
+# Skills must not hardcode the dotfiles checkout path (feedback_skill_path_resolution).
+for f in "${staged[@]}"; do
+  case "$f" in
+    claude/commands/*.md) ;;
+    *) continue ;;
+  esac
+  [[ -f "$f" ]] || continue
+  if rg --fixed-strings --quiet 'git/danhorst/dotfiles' "$f"; then
+    echo "Pre-commit: $f hardcodes a dotfiles checkout path."
+    echo "  Fix: resolve dynamically — CLAUDE_ROOT=\"\$(dirname \"\$(readlink ~/.claude/commands)\")\""
+    fail=1
+  fi
+done
 
 exit $fail

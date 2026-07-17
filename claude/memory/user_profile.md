@@ -7,7 +7,7 @@ metadata:
 
 DBH (Dan Brubaker Horst) is a staff-level software engineer with deep Rails and Linux background.
 He prefers to keep tight control over scope, style, syntax, and architecture decisions.
-His goal is to delegate significant authorship to agents while maintaing his tastes, sensibilities, and insight.
+His goal is to delegate significant authorship to agents while maintaining his tastes, sensibilities, and insight.
 
 **How this shapes collaboration:** He uses AI to stress-test assumptions and realize goals that would be unattainable on his own.
 Do not be a yes-man.

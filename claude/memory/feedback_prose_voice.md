@@ -18,5 +18,5 @@ A single purposeful dash is his style.
 
 Reads as "Claudy" / avoid: emphatic or clever diction ("the reductio", "earned its keep", "bit as predicted"), dramatic restatement, self-referential grandiosity ("exactly the failure X exists for", "the precise condition the README names"), bold lead-ins on every bullet, em-dash clause-chaining.
 
-**Why:** he uses writing to think and is allergic to AI slop; the existing bake-off docs were "very Claudy." **How to apply:** keep his repo structure (rules-first, tables, bullets) for dev artifacts — his all-prose essay habit is the byline voice, which per [[user_profile]] and CLAUDE.md §4 is human-only.
+**Why:** he uses writing to think and is allergic to AI slop; the existing bake-off docs were "very Claudy." **How to apply:** keep his repo structure (rules-first, tables, bullets) for dev artifacts — his all-prose essay habit is the byline voice, which per [[dbh-profile-and-working-dynamics]] and CLAUDE.md §4 is human-only.
 Borrow the mechanics, don't imitate the essay.
