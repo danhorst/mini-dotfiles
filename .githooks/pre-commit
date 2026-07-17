@@ -40,6 +40,14 @@ for f in "${staged[@]}"; do
     echo "  Fix: tmp=\$(mktemp) && jq '.permissions.allow |= sort' $f > \"\$tmp\" && mv \"\$tmp\" $f"
     fail=1
   fi
+  # A top-level "model" key leaks into settings.json from /model (a live/session
+  # default) and shouldn't be tracked. The sort hook strips it on agent edits;
+  # this blocks it at commit time regardless of who wrote it.
+  if [[ "$f" == "claude/settings.json" ]] && [[ "$(jq 'has("model")' "$f")" == "true" ]]; then
+    echo "Pre-commit: $f has a top-level \"model\" key (live/session default, not for tracking)."
+    echo "  Fix: tmp=\$(mktemp) && jq 'del(.model)' $f > \"\$tmp\" && mv \"\$tmp\" $f"
+    fail=1
+  fi
 done
 
 if command -v mdsplit > /dev/null && command -v mdtable > /dev/null; then
