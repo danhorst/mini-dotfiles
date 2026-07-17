@@ -3,11 +3,11 @@ Compare live memory against the cemented seed set and resolve each divergence in
 Live can drift behind cemented when a seed update wasn't mirrored — promotion isn't always the right move.
 
 The script buckets and diffs; you judge; DBH decides.
-`triage-memory.sh` does the deterministic bookkeeping (classification, staleness flags, diffs) so you spend context on judgment, not enumeration.
+`memory triage` does the deterministic bookkeeping (classification, staleness flags, diffs) so you spend context on judgment, not enumeration.
 
 ## Steps
 
-1. Run `triage-memory.sh`.
+1. Run `memory triage`.
    It resolves live and cemented paths itself and prints the report.
    If it reports "no memory changes to cement", relay that and stop.
 
@@ -23,12 +23,12 @@ The script buckets and diffs; you judge; DBH decides.
 
 4. Ask DBH the direction per file via `AskUserQuestion` (single-select, batched in groups of up to 4).
    Order options recommended-first: **Re-sync** first for stale-changed files, **Cement** first for new and clean-changed files.
-   - **Cement** (live → cemented): `cement-memory.sh <filenames>`.
-   - **Re-sync** (cemented → live): `cp` the seed over the live file.
+   - **Cement** (live → cemented): `memory cement <filenames>`.
+   - **Re-sync** (cemented → live): `memory resync <filenames>`.
    - **Skip**: leave the divergence.
 
 5. Apply the selected actions.
-   `cement-memory.sh` copies the files and regenerates `MEMORY.md` (via `memory-index.sh`); it refuses any seed marked `cement: false`.
+   `memory cement` copies the files, regenerates `MEMORY.md`, and stages the result; it refuses any seed marked `cement: false`.
 
 6. Show what's staged: `git -C "$(dirname "$(readlink ~/.claude/commands)")" status`.
    **Do not commit** — leave the working state clean for DBH's review.

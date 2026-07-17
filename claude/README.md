@@ -42,12 +42,12 @@ Used for rules that can be mechanically checked at tool-call time.
 ## Memory: seed and cement
 
 Memory files in `memory/` are *cemented seeds* tracked in git.
-At every session start, `bin/seed-memory.sh` (a `SessionStart` hook) populates the live memory dir non-destructively — it only fills gaps, never overwrites live state.
+At every session start, `memory seed` (a `SessionStart` hook) populates the live memory dir non-destructively — it only fills gaps, never overwrites live state.
 
-Live edits stay live until deliberately promoted via `/wrap-it-up`, which triages new and changed live files and calls `bin/cement-memory.sh` to copy selected files back into the seed set and regenerate `MEMORY.md`.
+Live edits stay live until deliberately promoted via `/wrap-it-up`, which triages new and changed live files and calls `memory cement` to copy selected files back into the seed set and regenerate `MEMORY.md`.
 
 Templated seeds carry `cement: false` in their frontmatter.
-The cement script refuses to overwrite them, so the template stays canonical (currently used only by `reference_workstation.md` to inject host RAM and arch via `envsubst`).
+`memory cement` refuses to overwrite them, so the template stays canonical (currently used only by `reference_workstation.md` to inject host RAM and arch via `envsubst`).
 
 Write seeds from the agent's runtime point of view, not the dotfiles maintainer's tree view.
 After deploy, the live memory lives at `~/.claude/projects/<encoded-cwd>/memory/` with no line of sight to `CLAUDE.md` or the hook scripts — references like `claude/etc/` or `bin/tool-prefs-check.sh` become noise the agent can't act on.
@@ -57,7 +57,7 @@ CLAUDE.md is loaded into the system prompt by name, so referring to it works but
 
 - **`PreToolUse` on `Bash`** — `bin/tool-prefs-check.sh` warns when a command's first word is a POSIX default (`grep`, `find`, `sed`, `awk`) that has an established replacement. Context-aware: extension match on positional args, plus `-r` / `--recursive` heuristic for grep. Extension lists live in `etc/`.
 - **`PostToolUse` on `Write` / `Edit`** — `bin/md-format-check.sh` warns when written markdown under `~/git/danhorst/` would be reshaped by `mdsplit | mdtable`. Alongside the existing shellcheck and settings.json sort hooks.
-- **`SessionStart`** — `bin/seed-memory.sh` populates the live memory dir from the cemented seeds.
+- **`SessionStart`** — `memory seed` populates the live memory dir from the cemented seeds.
 
 ## Attribution
 

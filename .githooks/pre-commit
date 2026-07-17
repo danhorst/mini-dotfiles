@@ -69,11 +69,11 @@ if command -v mdsplit > /dev/null && command -v mdtable > /dev/null; then
   done
 fi
 
-# Memory seeds: validate the corpus whenever any seed is staged. memory-index.sh
+# Memory seeds: validate the corpus whenever any seed is staged. 'memory index'
 # regenerates the index but never checks it, so malformed seeds fail silently.
 for f in "${staged[@]}"; do
   case "$f" in
-    claude/memory/*.md) claude/bin/memory-lint.sh || fail=1; break ;;
+    claude/memory/*.md) claude/bin/memory lint || fail=1; break ;;
   esac
 done
 

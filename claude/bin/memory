@@ -1,0 +1,327 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Single entry point for the Claude Code memory corpus: seeds (cemented, in this
+# dotfiles repo) and their per-project live copies. Subcommands share the path
+# resolution and frontmatter parsing that used to be copy-pasted across five
+# scripts. Invoked bare (claude/bin on PATH) from the SessionStart hook, the
+# pre-commit, and /wrap-it-up.
+
+# --- shared helpers ---------------------------------------------------------
+
+_resolve_paths() {
+  CLAUDE_ROOT="$(dirname "$(readlink "$HOME/.claude/commands")")"
+  SEEDS_DIR="$CLAUDE_ROOT/memory"
+  SEEDS_INDEX="$SEEDS_DIR/MEMORY.md"
+  ENCODED_CWD="${PWD//\//-}"
+  LIVE_DIR="$HOME/.claude/projects/${ENCODED_CWD}/memory"
+  LIVE_INDEX="$LIVE_DIR/MEMORY.md"
+}
+
+# _fm FILE REGEX — first capture group of the first matching frontmatter line.
+_fm() { rg --max-count 1 --replace '$1' "$2" "$1" 2>/dev/null || true; }
+
+# kebab a name the way the memory link resolver does (lint uses it).
+_kebab() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-//; s/-$//'; }
+
+# Write a seed into a live target, expanding the host-fact templates. envsubst
+# gets an explicit allowlist so any other $VAR in a seed is preserved literally.
+_materialize() {
+  local RAM_GB ARCH
+  RAM_GB=$(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024))
+  ARCH=$(uname -m)
+  export RAM_GB ARCH
+  # shellcheck disable=SC2016  # envsubst parses the allowlist itself; literal $VAR is intended
+  envsubst '$RAM_GB $ARCH' < "$1" > "$2"
+}
+
+usage() {
+  cat <<'EOF'
+memory — manage the Claude Code memory seed/live corpus
+
+Usage: memory <command> [args]
+
+  seed                 Populate the live memory dir from cemented seeds (non-destructive). SessionStart hook.
+  cement <file…>       Promote live files to the cemented seeds, regenerate the index, stage the result.
+  resync <file…>       Mirror cemented seeds back over their live copies (inverse of cement).
+  resync --all-stale   Resync every live file that differs from its seed (overwrites live with seed).
+  index                Regenerate MEMORY.md from seed frontmatter.
+  lint                 Validate seed frontmatter, index membership, and [[wikilinks]].
+  triage               Report live-vs-cemented divergences for /wrap-it-up.
+EOF
+}
+
+# --- subcommands ------------------------------------------------------------
+
+cmd_seed() {
+  _resolve_paths
+  [[ -d "$SEEDS_DIR" ]] || return 0
+  mkdir -p "$LIVE_DIR"
+
+  # Host facts for templated seeds; envsubst gets an explicit allowlist so any
+  # other $VAR in a seed is preserved literally.
+  local seed filename target
+  for seed in "$SEEDS_DIR"/*.md; do
+    filename=$(basename "$seed")
+    [[ "$filename" == "MEMORY.md" ]] && continue
+    target="$LIVE_DIR/$filename"
+    [[ -e "$target" ]] && continue
+    _materialize "$seed" "$target"
+  done
+
+  [[ -s "$LIVE_INDEX" ]] || printf '# Memory Index\n\n' > "$LIVE_INDEX"
+  [[ -e "$SEEDS_INDEX" ]] || return 0
+
+  local line fname
+  while IFS= read -r line; do
+    [[ "$line" =~ \(([^\)]+\.md)\) ]] || continue
+    fname="${BASH_REMATCH[1]}"
+    rg --fixed-strings --quiet "($fname)" "$LIVE_INDEX" && continue
+    printf '%s\n' "$line" >> "$LIVE_INDEX"
+  done < "$SEEDS_INDEX"
+}
+
+cmd_index() {
+  _resolve_paths
+  local type f base file_type name desc
+  {
+    echo "# Memory Index"
+    echo ""
+    for type in user reference project feedback; do
+      for f in "$SEEDS_DIR"/*.md; do
+        base=$(basename "$f")
+        [[ "$base" == "MEMORY.md" ]] && continue
+        file_type=$(_fm "$f" '^  type: (.*)$')
+        [[ "$file_type" != "$type" ]] && continue
+        name=$(_fm "$f" '^name: (.*)$')
+        desc=$(_fm "$f" '^description: (.*)$')
+        [[ -z "$name" || -z "$desc" ]] && continue
+        echo "- [$name]($base) — $desc"
+      done
+    done
+  } > "$SEEDS_INDEX"
+  echo "regenerated $SEEDS_INDEX" >&2
+}
+
+cmd_cement() {
+  _resolve_paths
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: memory cement <file.md> [<file2.md> ...]" >&2
+    echo "Promotes the named files from live memory to the cemented seed set." >&2
+    exit 1
+  fi
+
+  local cemented=0 filename live_file seed_file
+  local staged=()
+  for filename in "$@"; do
+    live_file="$LIVE_DIR/$filename"
+    seed_file="$SEEDS_DIR/$filename"
+    if [[ ! -e "$live_file" ]]; then
+      echo "skip $filename: not in live memory ($LIVE_DIR)" >&2
+      continue
+    fi
+    if [[ -e "$seed_file" ]] && rg --quiet '^  cement: false$' "$seed_file"; then
+      echo "skip $filename: seed is marked cement: false (templated or excluded)" >&2
+      continue
+    fi
+    cp "$live_file" "$seed_file"
+    echo "cemented $filename"
+    cemented=$((cemented + 1))
+    staged+=("$seed_file")
+  done
+
+  [[ $cemented -eq 0 ]] && return 0
+  cmd_index
+
+  # Keep the staged set coherent with what was just cemented — a partially
+  # staged old snapshot is how stale content nearly got committed once.
+  if git -C "$SEEDS_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if git -C "$SEEDS_DIR" add -- "${staged[@]}" "$SEEDS_INDEX"; then
+      echo "staged ${#staged[@]} seed(s) + index"
+    fi
+  fi
+}
+
+cmd_resync() {
+  _resolve_paths
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: memory resync <file.md> [...] | --all-stale" >&2
+    echo "Mirrors cemented seeds over their live copies (overwrites live)." >&2
+    exit 1
+  fi
+
+  local files=() base seed live
+  if [[ "$1" == "--all-stale" ]]; then
+    for seed in "$SEEDS_DIR"/*.md; do
+      base=$(basename "$seed")
+      [[ "$base" == "MEMORY.md" ]] && continue
+      # Templated seeds byte-differ from their expanded live copy by design;
+      # they're seed-managed, never a resync candidate (matches triage EXCLUDED).
+      rg --quiet '^  cement: false$' "$seed" && continue
+      live="$LIVE_DIR/$base"
+      [[ -e "$live" ]] || continue
+      cmp --silent "$seed" "$live" && continue
+      files+=("$base")
+    done
+  else
+    files=("$@")
+  fi
+
+  local n=0 filename
+  for filename in "${files[@]}"; do
+    seed="$SEEDS_DIR/$filename"
+    live="$LIVE_DIR/$filename"
+    if [[ ! -e "$seed" ]]; then
+      echo "skip $filename: no cemented seed ($SEEDS_DIR)" >&2
+      continue
+    fi
+    mkdir -p "$LIVE_DIR"
+    _materialize "$seed" "$live"
+    echo "re-synced $filename"
+    n=$((n + 1))
+  done
+  [[ $n -eq 0 ]] && echo "nothing to re-sync"
+  return 0
+}
+
+cmd_lint() {
+  _resolve_paths
+  local fail=0 f base name desc token
+  _note() { echo "memory-lint: $1"; fail=1; }
+
+  # Pass 1: resolvable link targets = kebab(name) of every seed.
+  declare -A valid_target=()
+  for f in "$SEEDS_DIR"/*.md; do
+    base=$(basename "$f")
+    [[ "$base" == "MEMORY.md" ]] && continue
+    name=$(_fm "$f" '^name: (.*)$')
+    [[ -n "$name" ]] && valid_target["$(_kebab "$name")"]=1
+  done
+
+  # Pass 2: per-seed structural checks.
+  for f in "$SEEDS_DIR"/*.md; do
+    base=$(basename "$f")
+    [[ "$base" == "MEMORY.md" ]] && continue
+
+    name=$(_fm "$f" '^name: (.*)$')
+    desc=$(_fm "$f" '^description: (.*)$')
+    [[ -z "$name" ]] && _note "$base: missing 'name:' (memory index will drop it)"
+    [[ -z "$desc" ]] && _note "$base: missing 'description:' (memory index will drop it)"
+
+    if rg --quiet '^type:' "$f"; then
+      _note "$base: flat 'type:' — nest under 'metadata:' (2-space indent) or memory index skips it"
+    elif ! rg --quiet '^  type: (user|reference|project|feedback)$' "$f"; then
+      _note "$base: missing or unknown 'metadata.type:' (want user|reference|project|feedback)"
+    fi
+
+    rg --fixed-strings --quiet "($base)" "$SEEDS_INDEX" 2>/dev/null \
+      || _note "$base: absent from MEMORY.md — run 'memory index'"
+
+    # Every [[wikilink]] must resolve to some seed's kebab(name). Tokens are
+    # space-free by convention, which also skips bash `[[ ... ]]` tests in code.
+    while IFS= read -r token; do
+      [[ -z "$token" ]] && continue
+      [[ -n "${valid_target[$(_kebab "$token")]:-}" ]] \
+        || _note "$base: broken [[${token}]] — no seed's name resolves to it"
+    done < <(rg --only-matching --replace '$1' '\[\[([^\]\s]+)\]\]' "$f" 2>/dev/null || true)
+  done
+
+  [[ $fail -eq 0 ]] && echo "memory-lint: ok"
+  return "$fail"
+}
+
+cmd_triage() {
+  _resolve_paths
+  if [[ ! -d "$LIVE_DIR" ]]; then
+    echo "no live memory dir ($LIVE_DIR)"
+    return 0
+  fi
+
+  local new=() changed=() excluded=() unchanged=0
+  local live filename seed
+  for live in "$LIVE_DIR"/*.md; do
+    [[ -e "$live" ]] || continue
+    filename=$(basename "$live")
+    [[ "$filename" == "MEMORY.md" ]] && continue
+    seed="$SEEDS_DIR/$filename"
+
+    # Exclusion wins over changed: a templated seed byte-differs from its live
+    # copy after envsubst, but must never be offered for cementing.
+    if [[ -e "$seed" ]] && rg --quiet '^  cement: false$' "$seed"; then
+      excluded+=("$filename")
+    elif [[ ! -e "$seed" ]]; then
+      new+=("$filename")
+    elif ! cmp --silent "$live" "$seed"; then
+      changed+=("$filename")
+    else
+      unchanged=$((unchanged + 1))
+    fi
+  done
+
+  if [[ ${#new[@]} -eq 0 && ${#changed[@]} -eq 0 ]]; then
+    echo "no memory changes to cement (${unchanged} unchanged, ${#excluded[@]} excluded)"
+    return 0
+  fi
+
+  if [[ ${#new[@]} -gt 0 ]]; then
+    echo "## NEW (in live, not cemented)"
+    echo ""
+    for filename in "${new[@]}"; do
+      desc=$(_fm "$LIVE_DIR/$filename" '^description: (.*)$')
+      echo "- $filename — ${desc:-(no description)}"
+    done
+    echo ""
+  fi
+
+  if [[ ${#changed[@]} -gt 0 ]]; then
+    echo "## CHANGED (in both, content differs)"
+    echo ""
+    local flags
+    for filename in "${changed[@]}"; do
+      live="$LIVE_DIR/$filename"
+      flags=()
+      rg --quiet '^\s*originSessionId:' "$live" && flags+=("originSessionId")
+      rg --quiet '^type:' "$live" && flags+=("flat-type")
+      if [[ ${#flags[@]} -gt 0 ]]; then
+        echo "### $filename — stale-live signals: ${flags[*]}"
+      else
+        echo "### $filename"
+      fi
+      echo ""
+      git diff --no-index -- "$SEEDS_DIR/$filename" "$live" || true
+      echo ""
+    done
+  fi
+
+  if [[ ${#excluded[@]} -gt 0 ]]; then
+    echo "## EXCLUDED (seed marked cement: false — reported, not offered)"
+    echo ""
+    for filename in "${excluded[@]}"; do
+      echo "- $filename"
+    done
+    echo ""
+  fi
+
+  echo "(${unchanged} unchanged, not listed)"
+  echo ""
+  echo "Resolve: 'memory cement <file>' (live → seed) or 'memory resync <file>' (seed → live)."
+}
+
+# --- dispatch ---------------------------------------------------------------
+
+main() {
+  local cmd="${1:-}"
+  if [[ $# -gt 0 ]]; then shift; fi
+  case "$cmd" in
+    seed)   cmd_seed "$@" ;;
+    cement) cmd_cement "$@" ;;
+    resync) cmd_resync "$@" ;;
+    index)  cmd_index "$@" ;;
+    lint)   cmd_lint "$@" ;;
+    triage) cmd_triage "$@" ;;
+    ""|-h|--help|help) usage ;;
+    *) echo "memory: unknown subcommand '$cmd'" >&2; usage >&2; exit 1 ;;
+  esac
+}
+
+main "$@"
