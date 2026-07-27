@@ -294,3 +294,11 @@ else
   echo "Disabling Power Nap (prevents Continuity/Universal Control disconnections)"
   sudo pmset -a powernap 0
 fi
+
+current_autorestart=$(pmset -g | awk '/^ autorestart / {print $2}')
+if [ "$current_autorestart" = "1" ]; then
+  echo "Automatic restart on power loss already enabled"
+else
+  echo "Enabling automatic restart on power loss"
+  sudo pmset -a autorestart 1
+fi
