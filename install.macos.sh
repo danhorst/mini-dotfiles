@@ -36,29 +36,49 @@ _dequarantine_app() {
 _dequarantine_bin claude
 _dequarantine_app "/Applications/AgentsView.app"
 _dequarantine_app "/Applications/Audacity.app"
-_dequarantine_app "/Applications/cmux.app"
+_dequarantine_app "/Applications/ChatGPT Classic.app"
+_dequarantine_app "/Applications/ChatGPT.app"
 _dequarantine_app "/Applications/Codex.app"
 _dequarantine_app "/Applications/Conductor.app"
 _dequarantine_app "/Applications/GitHub Desktop.app"
 _dequarantine_app "/Applications/Google Chrome.app"
 _dequarantine_app "/Applications/HandBrake.app"
-_dequarantine_app "/Applications/Keyboard Maestro.app"
 _dequarantine_app "/Applications/Ice.app"
 _dequarantine_app "/Applications/ImageOptim.app"
 _dequarantine_app "/Applications/Inkscape.app"
 _dequarantine_app "/Applications/Jellyfin.app"
+_dequarantine_app "/Applications/Keyboard Maestro.app"
 _dequarantine_app "/Applications/MonitorControl.app"
 _dequarantine_app "/Applications/QLMarkdown.app"
 _dequarantine_app "/Applications/QuickLook Video.app"
 _dequarantine_app "/Applications/Signal.app"
 _dequarantine_app "/Applications/Visual Studio Code.app"
+_dequarantine_app "/Applications/cmux.app"
 
 section "Codex"
 
 echo "Linking codex"
-safe_symlink "/Applications/Codex.app/Contents/Resources/codex" "$(brew --prefix)/bin/codex"
+
+if ! command -v brew >/dev/null 2>&1; then
+  echo "WARNING: brew not found. Skipping Codex CLI symlink."
+else
+  codex_app_resources=""
+  if [ -x "/Applications/ChatGPT.app/Contents/Resources/codex" ]; then
+    # OpenAI folded the Codex.app bundle into ChatGPT.app; the executable moved with it.
+    codex_app_resources="/Applications/ChatGPT.app/Contents/Resources/codex"
+  elif [ -x "/Applications/Codex.app/Contents/Resources/codex" ]; then
+    codex_app_resources="/Applications/Codex.app/Contents/Resources/codex"
+  fi
+
+  if [ -z "$codex_app_resources" ]; then
+    echo "  WARNING: codex executable not found in ChatGPT.app or Codex.app. Skipping Codex CLI symlink."
+  else
+    safe_symlink "$codex_app_resources" "$(brew --prefix)/bin/codex"
+  fi
+fi
 
 mkdir -p "$HOME/.codex"
+
 echo "Symlinking Codex config into $HOME/.codex"
 while IFS= read -r -d '' file; do
   filename="$(basename "$file")"
