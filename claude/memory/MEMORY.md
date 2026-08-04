@@ -1,6 +1,7 @@
 # Memory Index
 
 - [DBH profile and working dynamics](user_profile.md) — Who DBH is and the tensions shaping how he works with agents
+- [reference-aoe-integration-surfaces](reference_aoe_integration_surfaces.md) — "Which Agent of Empires extension points are actually reachable from a wrk-style workflow, and the one channel that always works"
 - [Workstation specs](reference_workstation.md) — Hardware facts for this machine — RAM and architecture — that drive context-discipline decisions
 - [project_claude_settings_live_writes](project_claude_settings_live_writes.md) — "Claude Code live-writes model into settings.json and reformats it; where that file is a symlinked tracked seed (this dotfiles repo) it shows perpetually dirty, and the durable model default lives in untracked settings.local.json"
 - [project-footnote-handling](project_footnote_handling.md) — How md-tools treats markdown footnotes and the danhorst.com parity/rendering constraints behind it
