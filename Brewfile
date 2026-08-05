@@ -1,5 +1,6 @@
 tap "danhorst/tap"
 
+brew "aoe"
 brew "ast-grep"
 brew "bash"
 brew "bat"
