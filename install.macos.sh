@@ -92,6 +92,18 @@ else
   echo "Skipping rtk bootstrap for Codex (rtk or Codex.app not found)"
 fi
 
+section "TerminalWidget"
+
+echo "Linking terminal-widget"
+
+if ! command -v brew >/dev/null 2>&1; then
+  echo "WARNING: brew not found. Skipping TerminalWidget CLI symlink."
+elif [ ! -x "/Applications/TerminalWidget.app/Contents/MacOS/TerminalWidget" ]; then
+  echo "  WARNING: TerminalWidget executable not found. Skipping symlink."
+else
+  safe_symlink "/Applications/TerminalWidget.app/Contents/MacOS/TerminalWidget" "$(brew --prefix)/bin/terminal-widget"
+fi
+
 section "Lima"
 
 if [ -d "/Users/lima" ]; then
