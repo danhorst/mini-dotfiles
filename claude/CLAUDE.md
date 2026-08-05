@@ -71,4 +71,13 @@ Three context budgets are always in play: DBH's cognition, agent context windows
 - Run `openspec update` after upgrading the CLI to regenerate the skills and slash commands.
 - Specs and changes live in each project's `openspec/`, not here; this repo only tracks that the tool exists and how to wire it in.
 
+## 8. Config files
+
+Don't commit a literal config file.
+Track it only once every private value has moved to the untracked env file and the tracked file is structure plus `${VAR}` references.
+
+- A tracked config plus an untracked `.example` twin is the shape that drifts — a key added to one silently misses the other. Prefer one tracked file over a template pair.
+- Adding a config key means updating the tracked file and the untracked local one in the same change.
+- An unset `${VAR}` usually expands to the literal `${VAR}`, not an empty string. Validate the fields where that would fail silently.
+
 @RTK.md
