@@ -8,8 +8,7 @@ metadata:
 ---
 
 A project's `bin/` directory is almost always on DBH's PATH — check the project's `.mise.toml` to confirm.
-When a script there shares a name with a system binary (e.g.
-`bin/sample` vs `/usr/bin/sample`), an unqualified call inside the script recurses on itself instead of invoking the system tool.
+When a script there shares a name with a system binary (e.g. `bin/sample` vs `/usr/bin/sample`), an unqualified call inside the script recurses on itself instead of invoking the system tool.
 
 **Why:** This bit twice in one week: two `bin/` scripts wrapping same-named system profiling tools called them by bare name, self-recursed indefinitely (each recursion shifting `$1` into the wrong parameter), and never reached the system binary.
 Diagnosis took longer than it should have both times.

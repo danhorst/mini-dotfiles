@@ -17,7 +17,6 @@ At 1h it takes two consecutive misses (~2h) to alert, which is the right tradeof
 
 **How to apply:** if `heartbeat.interval` in `config.yaml` changes, both healthchecks.io values need to change with it — period to match the new interval, grace to at least one interval.
 `README.md` documents matching the period but not the grace reasoning, so don't assume the repo is the full picture.
-Tightening detection means shortening the interval (e.g.
-15m/20m), not shrinking the grace.
+Tightening detection means shortening the interval (e.g. 15m/20m), not shrinking the grace.
 
 See [[feedback_deployment_hardening]] for the surrounding preference on how far to take hardening on this service.
