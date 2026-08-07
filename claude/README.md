@@ -6,18 +6,19 @@ Three layers — an always-loaded base prompt, a per-project memory system, and 
 ## Layout
 
 ```
-bin/          hook scripts and helpers
+bin/          hook scripts and helpers, incl. bin/memory (adapter for the shared engine)
 commands/     slash commands (e.g. /wrap-it-up)
 etc/          data files consumed by hooks (extension lists)
 fixtures/     reference templates consumed by commands (e.g. release/)
-memory/       cemented memory seeds, deployed at SessionStart
 CLAUDE.md     always-loaded judgment-driven rules
 settings.json harness config: hooks, permissions, model
 ```
 
+The memory seed corpus and its engine are harness-agnostic and live one level up, in `../agents/memory/` and `../agents/bin/memory` — see [`../agents/README.md`](../agents/README.md) and "Memory: seed and cement" below.
+
 ## Path resolution
 
-Skills reference this directory's own subdirectories (`fixtures/`, `memory/`) without hardcoding a machine-specific path.
+Skills reference this directory's own subdirectories (`fixtures/`, `etc/`) without hardcoding a machine-specific path.
 `~/.claude/commands` is a symlink to `commands/` here, and is guaranteed to exist wherever Claude Code runs — skills resolve everything else relative to it:
 
 ```
@@ -25,7 +26,8 @@ CLAUDE_ROOT="$(dirname "$(readlink ~/.claude/commands)")"
 ```
 
 `$CLAUDE_ROOT` is this directory (`dotfiles/claude`).
-Skills use `$CLAUDE_ROOT/fixtures/...`, `$CLAUDE_ROOT/memory/...`, etc. instead of writing out `~/git/danhorst/dotfiles/claude/...`, so they still resolve correctly if the checkout moves.
+Skills use `$CLAUDE_ROOT/fixtures/...`, etc. instead of writing out `~/git/danhorst/dotfiles/claude/...`, so they still resolve correctly if the checkout moves.
+The shared `agents/` directory resolves the same way, one level up: `$CLAUDE_ROOT/../agents`.
 
 ## The layered model
 
@@ -41,7 +43,9 @@ Used for rules that can be mechanically checked at tool-call time.
 
 ## Memory: seed and cement
 
-Memory files in `memory/` are *cemented seeds* tracked in git.
+Memory files in `../agents/memory/` are *cemented seeds* tracked in git — the corpus and its engine (`agents/bin/memory`) are shared across harnesses; see [`../agents/README.md`](../agents/README.md) for the frontmatter schema and the seed/cement/lint model.
+`bin/memory` in this directory is Claude Code's adapter: it resolves this harness's seed and live-copy paths and delegates to the shared engine, so every subcommand (`seed`, `cement`, `resync`, `index`, `lint`, `fix`, `triage`) behaves exactly as before.
+
 At every session start, `memory seed` (a `SessionStart` hook) populates the live memory dir non-destructively — it only fills gaps, never overwrites live state.
 
 Live edits stay live until deliberately promoted via `/wrap-it-up`, which triages new and changed live files and calls `memory cement` to copy selected files back into the seed set and regenerate `MEMORY.md`.

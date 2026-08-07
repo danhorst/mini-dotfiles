@@ -73,7 +73,7 @@ fi
 # regenerates the index but never checks it, so malformed seeds fail silently.
 for f in "${staged[@]}"; do
   case "$f" in
-    claude/memory/*.md)
+    agents/memory/*.md)
       if ! claude/bin/memory lint; then
         echo "  Fix: claude/bin/memory fix (then re-run 'claude/bin/memory lint' for anything left)"
         fail=1
