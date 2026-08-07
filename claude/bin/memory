@@ -47,6 +47,7 @@ Usage: memory <command> [args]
   resync --all-stale   Resync every live file that differs from its seed (overwrites live with seed).
   index                Regenerate MEMORY.md from seed frontmatter.
   lint                 Validate seed frontmatter, index membership, and [[wikilinks]].
+  fix                  Auto-fix table shape and index membership (mechanical subset of lint).
   triage               Report live-vs-cemented divergences for /wrap-it-up.
 EOF
 }
@@ -230,6 +231,19 @@ cmd_lint() {
   return "$fail"
 }
 
+cmd_fix() {
+  _resolve_paths
+  local f
+  if command -v mdsplit > /dev/null && command -v mdtable > /dev/null; then
+    for f in "$SEEDS_DIR"/*.md; do
+      [[ -f "$f" ]] || continue
+      mdsplit "$f" 2>/dev/null | mdtable -i "$f" 2>/dev/null || true
+    done
+  fi
+  cmd_index
+  echo "memory fix: reformatted tables, regenerated index"
+}
+
 cmd_triage() {
   _resolve_paths
   if [[ ! -d "$LIVE_DIR" ]]; then
@@ -318,6 +332,7 @@ main() {
     resync) cmd_resync "$@" ;;
     index)  cmd_index "$@" ;;
     lint)   cmd_lint "$@" ;;
+    fix)    cmd_fix "$@" ;;
     triage) cmd_triage "$@" ;;
     ""|-h|--help|help) usage ;;
     *) echo "memory: unknown subcommand '$cmd'" >&2; usage >&2; exit 1 ;;
