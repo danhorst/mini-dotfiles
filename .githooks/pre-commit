@@ -74,8 +74,8 @@ fi
 for f in "${staged[@]}"; do
   case "$f" in
     agents/memory/*.md)
-      if ! claude/bin/memory lint; then
-        echo "  Fix: claude/bin/memory fix (then re-run 'claude/bin/memory lint' for anything left)"
+      if ! MEMORY_SEEDS_DIR=agents/memory agents/bin/memory lint; then
+        echo "  Fix: MEMORY_SEEDS_DIR=agents/memory agents/bin/memory fix (then re-run lint for anything left)"
         fail=1
       fi
       break
