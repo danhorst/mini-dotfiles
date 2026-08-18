@@ -9,6 +9,7 @@ brew "xcodegen"
 brew "xwmx/taps/pb"
 
 cask "agentsview"
+cask "anki"
 cask "antigravity-cli"
 cask "appcleaner"
 cask "audacity"
