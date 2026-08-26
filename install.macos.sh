@@ -135,56 +135,6 @@ section "Playwright"
 echo "Installing Playwright Chromium browser"
 mise exec -- playwright install chromium
 
-section "SSH key management"
-
-ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
-SSH_KEY="$(git config --global user.signingkey)"
-SSH_KEY="${SSH_KEY/#\~/$HOME}"
-GIT_EMAIL="$(git config --global user.email)"
-
-if [ -z "$SSH_KEY" ]; then
-  echo "WARN: No signing key configured in git; skipping allowed signers setup"
-else
-  if [ ! -f "$SSH_KEY" ]; then
-    echo "Signing key $SSH_KEY not found; generating new SSH key"
-    ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "${SSH_KEY%.pub}" -N ""
-  fi
-
-  key_fingerprint=$(awk '{print $2}' "$SSH_KEY")
-  if grep -qF "$key_fingerprint" "$ALLOWED_SIGNERS" 2>/dev/null; then
-    echo "Signing key already in allowed signers"
-  else
-    echo "$GIT_EMAIL $(cat "$SSH_KEY")" >> "$ALLOWED_SIGNERS"
-    echo "Added signing key to $ALLOWED_SIGNERS"
-  fi
-fi
-
-# ShellFish (iPhone) key — export from ShellFish > Settings > SSH Keys,
-# then copy to this path before running install.
-SHELLFISH_KEY="$HOME/.ssh/shellfish-iphone.pub"
-
-if [ ! -f "$SHELLFISH_KEY" ]; then
-  echo "WARN: ShellFish key not found at $SHELLFISH_KEY; skipping"
-  echo "  Export your public key from ShellFish > Settings > SSH Keys and copy it there"
-else
-  key_data=$(awk '{print $2}' "$SHELLFISH_KEY")
-
-  if grep -qF "$key_data" "$ALLOWED_SIGNERS" 2>/dev/null; then
-    echo "ShellFish key already in allowed signers"
-  else
-    echo "$GIT_EMAIL $(cat "$SHELLFISH_KEY")" >> "$ALLOWED_SIGNERS"
-    echo "Added ShellFish key to $ALLOWED_SIGNERS"
-  fi
-
-  AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
-  if grep -qF "$key_data" "$AUTHORIZED_KEYS" 2>/dev/null; then
-    echo "ShellFish key already in authorized_keys"
-  else
-    cat "$SHELLFISH_KEY" >> "$AUTHORIZED_KEYS"
-    echo "Added ShellFish key to $AUTHORIZED_KEYS"
-  fi
-fi
-
 section "Unbound (local DNS)"
 
 UNBOUND_PREFIX="$(brew --prefix)/etc/unbound"

@@ -31,7 +31,11 @@ _kebab() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/
 # gets an explicit allowlist so any other $VAR in a seed is preserved literally.
 _materialize() {
   local RAM_GB ARCH
-  RAM_GB=$(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024))
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    RAM_GB=$(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024))
+  else
+    RAM_GB=$(($(awk '/MemTotal/{print $2}' /proc/meminfo) / 1024 / 1024))
+  fi
   ARCH=$(uname -m)
   export RAM_GB ARCH
   # shellcheck disable=SC2016  # envsubst parses the allowlist itself; literal $VAR is intended

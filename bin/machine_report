@@ -10,6 +10,7 @@
 MIN_NAME_LEN=5
 MAX_NAME_LEN=13
 
+# shellcheck disable=SC2034 # kept for parity with upstream sizing constants
 MIN_DATA_LEN=20
 MAX_DATA_LEN=32
 
@@ -31,7 +32,7 @@ max_length() {
         fi
     done
 
-    if [ $max_len -lt $MAX_DATA_LEN ]; then
+    if [ "$max_len" -lt "$MAX_DATA_LEN" ]; then
         printf '%s' "$max_len"
     else
         printf '%s' "$MAX_DATA_LEN"
@@ -258,7 +259,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     # shellcheck source=/dev/null
     source /etc/os-release
-    os_name="${ID^} ${VERSION} ${VERSION_CODENAME^}"
+    os_name="${ID^} ${VERSION}"
 fi
 os_kernel=$({ uname; uname -r; } | tr '\n' ' ')
 
@@ -292,9 +293,9 @@ fi
 
 # DNS servers
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    net_dns_ip=($(scutil --dns 2>/dev/null | grep 'nameserver\[' | awk '{print $3}' | sort -u))
+    mapfile -t net_dns_ip < <(scutil --dns 2>/dev/null | grep 'nameserver\[' | awk '{print $3}' | sort -u)
 else
-    net_dns_ip=($(grep '^nameserver [0-9.]' /etc/resolv.conf | awk '{print $2}'))
+    mapfile -t net_dns_ip < <(grep '^nameserver [0-9.]' /etc/resolv.conf | awk '{print $2}')
 fi
 
 # Uptime (cached — reused for load averages and sys_uptime)
@@ -356,7 +357,23 @@ else
     cpu_cores="$(nproc --all)"
     cpu_cores_per_socket="$(lscpu | grep 'Core(s) per socket' | cut -f 2 -d ':'| awk '{$1=$1}1')"
     cpu_sockets="$(lscpu | grep 'Socket(s)' | cut -f 2 -d ':' | awk '{$1=$1}1')"
+    if [ -z "$cpu_cores_per_socket" ] || [ "$cpu_sockets" = "-" ] || [ -z "$cpu_sockets" ]; then
+        # Some ARM/SBC lscpu builds report cluster topology instead of socket
+        # topology ("Core(s) per cluster" + "Socket(s): -"); fall back to
+        # treating all logical CPUs as a single socket.
+        cpu_cores_per_socket="$cpu_cores"
+        cpu_sockets="1"
+    fi
     cpu_freq="$(grep 'cpu MHz' /proc/cpuinfo | cut -f 2 -d ':' | awk 'NR==1 { printf "%.2f", $1 / 1000 }')"
+    if [ -z "$cpu_freq" ]; then
+        # ARM /proc/cpuinfo has no "cpu MHz" field; read the rated max from cpufreq sysfs instead
+        cpu_freq_khz="$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq 2>/dev/null)"
+        if [ -n "$cpu_freq_khz" ]; then
+            cpu_freq=$(awk -v khz="$cpu_freq_khz" 'BEGIN { printf "%.2f", khz / 1000000 }')
+        else
+            cpu_freq="N/A"
+        fi
+    fi
 fi
 
 # macOS uses "load averages:" (plural), Linux uses "load average:" (singular)
@@ -392,7 +409,8 @@ fi
 mem_percent=$(awk -v used="$mem_used" -v total="$mem_total" 'BEGIN { printf "%.2f", (used / total) * 100 }')
 mem_percent=$(printf "%.2f" "$mem_percent")
 mem_total_gb=$(echo "$mem_total" | awk '{ printf "%.2f", $1 / (1024 * 1024) }') # (From Ki to Gi units)
-mem_available_gb=$(echo "$mem_available" | awk '{ printf "%.2f", $1 / (1024 * 1024) }') # (From Ki to Gi units) Not used currently
+# shellcheck disable=SC2034 # (From Ki to Gi units) Not used currently
+mem_available_gb=$(echo "$mem_available" | awk '{ printf "%.2f", $1 / (1024 * 1024) }')
 mem_used_gb=$(echo "$mem_used" | awk '{ printf "%.2f", $1 / (1024 * 1024) }')
 
 # Disk Information
@@ -479,18 +497,24 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         fi
     fi
 else
-    # Linux uses 'lastlog' command
-    last_login=$(lastlog -u "$USER")
-    last_login_ip=$(echo "$last_login" | awk 'NR==2 {print $3}')
-
-    if [[ "$last_login_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        last_login_ip_present=1
-        last_login_time=$(echo "$last_login" | awk 'NR==2 {print $6, $7, $10, $8}')
-    else
-        last_login_time=$(echo "$last_login" | awk 'NR==2 {print $4, $5, $8, $6}')
-        if [ "$last_login_time" = "in**" ]; then
+    # Linux: prefer 'last' (tab-separated, full timestamps). Debian trixie+
+    # splits it into util-linux-extra, not installed by default; 'lastlog'
+    # has the same issue (ships in the separate 'login' package), so fall
+    # back to "Unknown" rather than a blank field when neither is present.
+    if command -v last &>/dev/null; then
+        last_line=$(last -T -F -n 1 "$USER" 2>/dev/null | head -1)
+        if [ -n "$last_line" ]; then
+            last_login_host=$(echo "$last_line" | awk -F'\t' '{print $3}' | awk '{$1=$1}1')
+            last_login_time=$(echo "$last_line" | awk -F'\t' '{print $4}' | awk '{$1=$1}1')
+            if [[ "$last_login_host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                last_login_ip_present=1
+                last_login_ip="$last_login_host"
+            fi
+        else
             last_login_time="Never logged in"
         fi
+    else
+        last_login_time="Unknown"
     fi
 
     sys_uptime=$(uptime -p | sed 's/up\s*//; s/\s*day\(s*\)/d/; s/\s*hour\(s*\)/h/; s/\s*minute\(s*\)/m/')
@@ -520,7 +544,7 @@ PRINT_DATA "MACHINE IP" "$net_machine_ip"
 PRINT_DATA "CLIENT  IP" "$net_client_ip"
 
 for dns_num in "${!net_dns_ip[@]}"; do
-    PRINT_DATA "DNS  IP $(($dns_num + 1))" "${net_dns_ip[dns_num]}"
+    PRINT_DATA "DNS  IP $((dns_num + 1))" "${net_dns_ip[dns_num]}"
 done
 
 PRINT_DATA "USER" "$net_current_user"
