@@ -59,9 +59,8 @@ auto_resume_on_restart = true
 auto_stop_idle_secs = 0
 click_action = "live_send"
 confirm_before_quit = false
-confirm_delete = false
+confirm_delete = true
 conversation_summary = false
-custom_agents = { shell = "zsh" }
 default_attach_mode = "live_send"
 delete_to_trash = true
 favorites_first = true
@@ -85,6 +84,9 @@ tie_workdir_to_name = true
 trash_retention_days = 30
 unread_indicator = true
 yolo_mode_default = false
+
+[session.custom_agents]
+shell = "zsh"
 
 [sound]
 enabled = false
