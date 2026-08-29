@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Resolve the repo root from this script's own location so the checkout can live
+# anywhere the Lima guest can see it, not just one hardcoded path.
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 echo "###############################################################################"
 echo "Package updates"
 echo "###############################################################################"
@@ -34,8 +38,8 @@ echo "##########################################################################
 echo "Dotfiles"
 echo "###############################################################################"
 
-ln -nsf "/Users/dbh/git/dotfiles/lima/bashrc" "$HOME/.bashrc"
-ln -nsf "/Users/dbh/git/dotfiles/shell/gitconfig" "$HOME/.gitconfig"
+ln -nsf "$REPO_DIR/lima/bashrc" "$HOME/.bashrc"
+ln -nsf "$REPO_DIR/shell/gitconfig" "$HOME/.gitconfig"
 
 echo "###############################################################################"
 echo "rbenv"
@@ -63,7 +67,7 @@ echo "##########################################################################
 if declare -f nvm &> /dev/null; then
   echo "nvm is installed"
 else
-  /Users/dbh/git/dotfiles/lima/nvm-install.sh
+  "$REPO_DIR/lima/nvm-install.sh"
 fi
 
 echo ""
@@ -71,17 +75,11 @@ echo "##########################################################################
 echo "Claude Code"
 echo "###############################################################################"
 
-if command -v npm >/dev/null 2>&1; then
-  echo "Dependencies are met"
-else
-  echo "No npm available. Set with \`nvm use--lts\`."
-fi
-
 if command -v claude >/dev/null 2>&1; then
   echo "claude is already installed"
 else
   echo "claude is not installed"
-  npm install -g @anthropic-ai/claude-code
+  bash "$REPO_DIR/vendor/claude-install.sh"
 fi
 
 echo ""

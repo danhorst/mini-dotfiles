@@ -1,7 +1,7 @@
 #!/bin/bash
 # Linux/WSL install steps, sourced by install.sh.
 # The core productivity layer (shell, CLI tools, mise) is handled by install.sh.
-# This file covers Linux-only setup: Claude Code (npm), default shell.
+# This file covers Linux-only setup: default shell.
 
 section "Default shell (zsh)"
 

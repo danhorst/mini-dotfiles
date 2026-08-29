@@ -174,6 +174,24 @@ mise install
 
 section "Claude Code"
 
+# Migrate off the old mise-managed npm package (npm:@anthropic-ai/claude-code),
+# now superseded by vendor/claude-install.sh. Drop the mise copy and its stale
+# shim so `claude` resolves to the native ~/.local/bin launcher. Safe to remove
+# this block once every machine has re-run install.
+if mise ls --installed 2>/dev/null | grep -q '@anthropic-ai/claude-code'; then
+  echo "Removing the superseded mise-managed claude-code package"
+  mise uninstall --all "npm:@anthropic-ai/claude-code" || true
+fi
+rm -f "$HOME/.local/share/mise/shims/claude"
+hash -r 2>/dev/null || true
+
+if command -v claude &>/dev/null; then
+  echo "Claude Code already installed: $(claude --version)"
+else
+  echo "Installing Claude Code via the native installer"
+  bash "$dotfiles_directory/vendor/claude-install.sh"
+fi
+
 mkdir -p "$HOME/.claude"
 echo "Symlinking Claude Code config into $HOME/.claude"
 while IFS= read -r -d '' file; do

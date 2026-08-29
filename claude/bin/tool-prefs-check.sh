@@ -10,7 +10,7 @@ set -euo pipefail
 # Extension lists live in claude/etc/{code,config}-extensions.txt so they
 # can be tuned without editing this script. Warns; never blocks.
 
-DOTFILES_ETC="${HOME}/git/danhorst/dotfiles/claude/etc"
+DOTFILES_ETC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../etc"
 
 command=$(jq -r '.tool_input.command // empty')
 [[ -z "$command" ]] && exit 0

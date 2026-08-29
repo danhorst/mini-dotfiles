@@ -37,7 +37,7 @@ Terminal config on Windows is handled by Windows Terminal, whose settings live o
 ./install.sh
 ```
 
-The orchestrator (`install.sh`) runs the cross-platform steps, then sources `install.macos.sh` for the macOS-only layer: symlink `shell/` into `$HOME`, set git hooks, symlink `bin/`, run `brew bundle` against `Brewfile` + `Brewfile.macos`, install `mise` tools, link Claude Code config, then Xcode CLT, Gatekeeper, Codex, Lima, Ghostty, Playwright, SSH keys, `unbound` `.test` DNS, `caddy`, `pf`, and Power Nap.
+The orchestrator (`install.sh`) runs the cross-platform steps, then sources `install.macos.sh` for the macOS-only layer: symlink `shell/` into `$HOME`, set git hooks, symlink `bin/`, run `brew bundle` against `Brewfile` + `Brewfile.macos`, install `mise` tools, install Claude Code via the vendored native installer, link Claude Code config, then Xcode CLT, Gatekeeper, Codex, Lima, Ghostty, Playwright, SSH keys, `unbound` `.test` DNS, `caddy`, `pf`, and Power Nap.
 
 Pass `-b` to force a `brew bundle` (bypasses the 24h cache) and `-n` to reset the Unbound/Caddy/pf network configuration.
 
